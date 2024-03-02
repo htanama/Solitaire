@@ -1,4 +1,3 @@
-!GitHub HarrySolitaire.png
 
 This Solitaire is still in development will be completed on March 20, 2024.
 
