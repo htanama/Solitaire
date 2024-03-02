@@ -84,7 +84,7 @@ void Card::setCardPosition(float x, float y)
     m_frontSprite.setPosition(x, y);
 }
 
-sf::Sprite Card::getCardSprite() const
+sf::Sprite& Card::getCardSprite() 
 {
     if(m_isFaceUp)
         return m_frontSprite;

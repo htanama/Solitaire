@@ -17,8 +17,12 @@ class Game
         void Render(sf::RenderWindow &window);
 
     private:
+        bool m_isDragCard;
+
         sf::Texture m_pilesTexture;
         sf::Sprite m_pilesSprite;
+        sf::Vector2f m_dragOffsetCard;
+
 
         std::unordered_map<int, sf::Sprite> m_BuildPilesMap;
         Card m_card;

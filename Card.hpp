@@ -40,7 +40,7 @@ class Card
         bool getIsFaceUp();
         void setCardFrontSprite(sf::IntRect srcRect);
         void setCardPosition(float x, float y);
-        sf::Sprite getCardSprite() const;
+        sf::Sprite& getCardSprite();
 
 };
 
