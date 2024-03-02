@@ -15,19 +15,36 @@ class Game
         void ProcessInput(sf::RenderWindow &window, sf::Event event);
         void Update();
         void Render(sf::RenderWindow &window);
-
+        
+        void PutCardOnTable();
     private:
         bool m_isDragCard;
+       /* const int m_index[52] = { 22, 10, 40, 16, 31, 24, 7, 8, 9, 2, 11, 49, 13, 14,
+            15, 3, 51, 18, 36, 20, 21, 1, 23, 6, 25, 26, 27, 28, 29, 30, 5,
+            32, 33, 34, 35, 19, 37, 38, 39, 3, 41, 42, 43, 44, 45, 46, 47, 48, 
+            12, 50, 17, 52};
+        */
+       
+        int m_cardIndex[52] = { 
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
+            11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
+            21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+            31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+            41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 
+            51, 52
+        };
 
         const int DISCARD_POSITION_X = 150;
         const int DISCARD_POSITION_Y = 20;
         const int DRAW_PILE_POSX = 20;
         const int DRAW_PILE_POSY = 20;
-        const int BUILD_PILE_POS_X1 = 400;
-        const int BUILD_PILE_POS_X2 = 550;
-        const int BUILD_PILE_POS_X3 = 700;
-        const int BUILD_PILE_POS_X4 = 850;
+        const int BUILD_PILE_POS_X = 550;
         const int BUILD_PILE_POS_Y = 20;
+        const int BUILD_PILE_OFFSET_X = 150;
+        const int TABLE_COL_POS_X = 20;
+        const int TABLE_COL_POS_Y = 200;
+        const int TABLE_OFFSET_POS_X = 130;
+        const int TABLE_OFFSET_POS_Y = 30;
 
         sf::Texture m_pilesTexture;
         sf::Sprite m_pilesSprite;
@@ -36,7 +53,7 @@ class Game
 
         std::unordered_map<int, sf::Sprite> m_BuildPilesMap;
         Card m_card;
-        std::vector<Card> myDeck, cardsOnTable;
+        std::vector<Card> myDeck, tempDeck;
         
         
         

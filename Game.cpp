@@ -7,8 +7,11 @@
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
+#include <algorithm>
+#include <random>
 
-Game::Game():myDeck(52),m_isDragCard(false)
+
+Game::Game():myDeck(52),tempDeck(52), m_isDragCard(false)
 {
     if(!m_pilesTexture.loadFromFile("./assets/FinalRectangle.png")){
         std::cerr<<"Error Loading FinalRectangle.png!\n";
@@ -18,10 +21,10 @@ Game::Game():myDeck(52),m_isDragCard(false)
     for(int i = 0; i < 5; i++){
         m_BuildPilesMap[i] = m_pilesSprite;
     }
-     m_BuildPilesMap[0].setPosition(BUILD_PILE_POS_X1, BUILD_PILE_POS_Y); 
-     m_BuildPilesMap[1].setPosition(BUILD_PILE_POS_X2, BUILD_PILE_POS_Y); 
-     m_BuildPilesMap[2].setPosition(BUILD_PILE_POS_X3, BUILD_PILE_POS_Y); 
-     m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X4, BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[0].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[1].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 1), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[2].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 2), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y); 
 
     // Discard Draw Pile
     m_BuildPilesMap[4].setPosition(150, 20);
@@ -38,12 +41,26 @@ Game::Game():myDeck(52),m_isDragCard(false)
     myDeck[1].setCardPosition(200, 0);
     */
     
-    // Assigning each card to texture
+    // Assigning each card to texture in ordered
     for(int i = 0; i < 52; ++i){
-        myDeck[i].setCardFrontSprite(sf::IntRect((i%13)*CARD_WIDTH, (i/13)*CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT));
-
+        tempDeck[i].setCardFrontSprite(sf::IntRect((i%13)*CARD_WIDTH, (i/13)*CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT));
     }
     
+    // Create a random device
+    std::random_device rd;
+    // Initialize a generator
+    std:;std::mt19937 g(rd());
+
+    //Suffle the array
+    std::shuffle(std::begin(m_cardIndex), std::end(m_cardIndex), g);
+    
+    for(int i = 0; i < 52; i++){     
+        myDeck[i] = tempDeck[m_cardIndex[i]];
+    }
+    
+  
+    // myDeck = tempDeck;
+      
     /*
     myDeck[51].setCardPosition(10, 10);
 
@@ -60,17 +77,6 @@ Game::Game():myDeck(52),m_isDragCard(false)
     for(int i = 0; i < 52; i++){
         myDeck[i].setFaceUp();
     }
-   
-    for(int i = 12; i >= 0; i--){
-        myDeck[i].setCardPosition(200,300 + row);
-        row += 30;
-    }
-    
-    row = 0;    
-    for(int i = 25; i >= 13; i--){
-        myDeck[i].setCardPosition(350, 300 + row);
-        row += 30;
-    }
 
     row = 0;
     for(int i = 38; i >= 26; i--){
@@ -86,6 +92,8 @@ Game::Game():myDeck(52),m_isDragCard(false)
     
     myDeck[51].setFaceDown();
     myDeck[51].setCardPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);
+
+    PutCardOnTable();
 }
 
 Game::~Game()
@@ -122,7 +130,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 
             }
         }
-
+        // when mouse button is pressed drag the card.
         if(event.type == sf::Event::MouseButtonPressed){
             sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
             sf::FloatRect rectBounds = myDeck[0].getCardSprite().getGlobalBounds();
@@ -156,11 +164,11 @@ void Game::Update()
 {
     // if Build_Pile is empty, then Ace needs to be the first in the stack.
     if(myDeck[0].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[0].getGlobalBounds())){
-        myDeck[0].getCardSprite().setPosition(BUILD_PILE_POS_X1, BUILD_PILE_POS_Y);
+        myDeck[0].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y);
         m_isDragCard = false;
-        myDeck[13].getCardSprite().setPosition(BUILD_PILE_POS_X2, BUILD_PILE_POS_Y);
-        myDeck[26].getCardSprite().setPosition(BUILD_PILE_POS_X3, BUILD_PILE_POS_Y);
-        myDeck[39].getCardSprite().setPosition(BUILD_PILE_POS_X4, BUILD_PILE_POS_Y);
+        myDeck[13].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 1), BUILD_PILE_POS_Y);
+        myDeck[26].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 2), BUILD_PILE_POS_Y);
+        myDeck[39].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y);
 
         for(int i = 1; i < 13; i++){
             myDeck[i].getCardSprite().setPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);
@@ -169,36 +177,146 @@ void Game::Update()
     }
 }
 
+void Game::PutCardOnTable()
+{
+    // Table Col one, one card, flip open. 
+    myDeck[0].setFaceUp();
+    myDeck[0].getCardSprite().setPosition(TABLE_COL_POS_X, TABLE_COL_POS_Y);
+
+    // Table Col two, two cards, one closed, one flip open.
+    myDeck[25].setFaceDown();
+    myDeck[24].setFaceUp();
+    myDeck[25].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 0), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[24].getCardSprite().setPosition(150, 230);
+
+    // Table Col three, three cards, all closed, one at the bottom flip open.
+    myDeck[23].setFaceDown(); 
+    myDeck[22].setFaceDown(); 
+    myDeck[21].setFaceUp();
+    
+    myDeck[23].getCardSprite().setPosition(280, 200);
+    myDeck[22].getCardSprite().setPosition(280, 230);
+    myDeck[21].getCardSprite().setPosition(280, 260);
+
+    //Table Col 4, 4 cards, all closed, one at the bottom flip open. 
+    myDeck[20].setFaceDown(); 
+    myDeck[19].setFaceDown(); 
+    myDeck[18].setFaceDown();
+    myDeck[17].setFaceUp();
+
+    myDeck[20].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[19].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
+    myDeck[18].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2)); 
+    myDeck[17].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+
+    //Table Col 5, 5 cards, all closed, one at the bottom flip open. 
+    myDeck[16].setFaceDown(); 
+    myDeck[15].setFaceDown(); 
+    myDeck[14].setFaceDown();
+    myDeck[13].setFaceDown();
+    myDeck[12].setFaceUp();
+
+    myDeck[16].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[15].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
+    myDeck[14].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
+    myDeck[13].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+    myDeck[12].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
+
+    //Table Col 6, 6 cards, all closed, one at the bottom flip open. 
+    myDeck[11].setFaceDown(); 
+    myDeck[10].setFaceDown(); 
+    myDeck[9].setFaceDown();
+    myDeck[8].setFaceDown();
+    myDeck[7].setFaceDown(); 
+    myDeck[6].setFaceUp();
+
+    myDeck[11].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[10].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
+    myDeck[9].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
+    myDeck[8].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+    myDeck[7].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
+    myDeck[6].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 5)); 
+
+    //Table Col 7, 7 cards, all closed, one at the bottom flip open. 
+    myDeck[32].setFaceDown(); 
+    myDeck[31].setFaceDown(); 
+    myDeck[30].setFaceDown();
+    myDeck[29].setFaceDown();
+    myDeck[28].setFaceDown(); 
+    myDeck[27].setFaceDown();
+    myDeck[26].setFaceUp();
+
+    myDeck[32].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[31].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
+    myDeck[30].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
+    myDeck[29].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+    myDeck[28].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
+    myDeck[27].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 5)); 
+    myDeck[26].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 6)); 
+
+
+
+
+
+}
+
 void Game::Render(sf::RenderWindow &window)
 {
-    window.draw(m_BuildPilesMap[4]);
-
     for(int i = 0; i < 4; i++){
         window.draw(m_BuildPilesMap[i]);
     }
+    // Discard Pile Next to the Draw Pile
+    window.draw(m_BuildPilesMap[4]); 
 
-    // window.draw(m_card.getCardSprite());
+    // Draw Pile
     window.draw(myDeck[51].getCardSprite());
 
-    /*
-    window.draw(myDeck[26].getCardSprite());
-    window.draw(myDeck[38].getCardSprite());
-    window.draw(myDeck[11].getCardSprite());
-    */
+    // Draw Card on the Table Col Two 
+    window.draw(myDeck[25].getCardSprite());
+    window.draw(myDeck[24].getCardSprite());  
+
+    // Draw Card on the Table Col Three
+    window.draw(myDeck[23].getCardSprite());
+    window.draw(myDeck[22].getCardSprite());
+    window.draw(myDeck[21].getCardSprite());
     
-    for(int i = 12; i >= 0; i--){
-        window.draw(myDeck[i].getCardSprite());
-    }
+    // Draw Card on the Table Col Four 
+    window.draw(myDeck[20].getCardSprite());
+    window.draw(myDeck[19].getCardSprite());
+    window.draw(myDeck[18].getCardSprite());  
+    window.draw(myDeck[17].getCardSprite());  
 
-    for(int i = 25; i >= 13; i--){
-        window.draw(myDeck[i].getCardSprite());
-    }
-
+    // Draw Card on the Table Col Five 
+    window.draw(myDeck[16].getCardSprite());
+    window.draw(myDeck[15].getCardSprite());
+    window.draw(myDeck[14].getCardSprite());  
+    window.draw(myDeck[13].getCardSprite());  
+    window.draw(myDeck[12].getCardSprite());  
+   
+    // Draw Card on the Table Col Six 
+    window.draw(myDeck[11].getCardSprite());
+    window.draw(myDeck[10].getCardSprite());
+    window.draw(myDeck[9].getCardSprite());  
+    window.draw(myDeck[8].getCardSprite());  
+    window.draw(myDeck[7].getCardSprite());  
+    window.draw(myDeck[6].getCardSprite());  
+    
+    // Draw Card on the Table Col Seven 
+    window.draw(myDeck[32].getCardSprite());
+    window.draw(myDeck[31].getCardSprite());
+    window.draw(myDeck[30].getCardSprite());  
+    window.draw(myDeck[29].getCardSprite());  
+    window.draw(myDeck[28].getCardSprite());  
+    window.draw(myDeck[27].getCardSprite());  
+    window.draw(myDeck[26].getCardSprite());  
+ 
+   
+    /* example card rendering
     for(int i = 38; i >= 26; i--){
         window.draw(myDeck[i].getCardSprite());
-    }
-
-    for (int i = 50; i >= 39; i--){
-        window.draw(myDeck[i].getCardSprite());
-    }
+    }*/
+    
+    // Table Col One
+    window.draw(myDeck[0].getCardSprite());
+    
 }
