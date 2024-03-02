@@ -19,6 +19,16 @@ class Game
     private:
         bool m_isDragCard;
 
+        const int DISCARD_POSITION_X = 150;
+        const int DISCARD_POSITION_Y = 20;
+        const int DRAW_PILE_POSX = 20;
+        const int DRAW_PILE_POSY = 20;
+        const int BUILD_PILE_POS_X1 = 400;
+        const int BUILD_PILE_POS_X2 = 550;
+        const int BUILD_PILE_POS_X3 = 700;
+        const int BUILD_PILE_POS_X4 = 850;
+        const int BUILD_PILE_POS_Y = 20;
+
         sf::Texture m_pilesTexture;
         sf::Sprite m_pilesSprite;
         sf::Vector2f m_dragOffsetCard;
@@ -26,7 +36,9 @@ class Game
 
         std::unordered_map<int, sf::Sprite> m_BuildPilesMap;
         Card m_card;
-        std::vector<Card> myDeck;
+        std::vector<Card> myDeck, cardsOnTable;
+        
+        
         
 };
 #endif

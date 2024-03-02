@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include "Card.hpp"
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Window.hpp>
@@ -14,12 +15,14 @@ Game::Game():myDeck(52),m_isDragCard(false)
     }
     m_pilesSprite.setTexture(m_pilesTexture);
     
-    int offsetX = 150;
     for(int i = 0; i < 5; i++){
         m_BuildPilesMap[i] = m_pilesSprite;
-        m_BuildPilesMap[i].setPosition(300+offsetX, 20);
-        offsetX += 150;
     }
+     m_BuildPilesMap[0].setPosition(BUILD_PILE_POS_X1, BUILD_PILE_POS_Y); 
+     m_BuildPilesMap[1].setPosition(BUILD_PILE_POS_X2, BUILD_PILE_POS_Y); 
+     m_BuildPilesMap[2].setPosition(BUILD_PILE_POS_X3, BUILD_PILE_POS_Y); 
+     m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X4, BUILD_PILE_POS_Y); 
+
     // Discard Draw Pile
     m_BuildPilesMap[4].setPosition(150, 20);
 
@@ -82,7 +85,7 @@ Game::Game():myDeck(52),m_isDragCard(false)
     }
     
     myDeck[51].setFaceDown();
-    myDeck[51].setCardPosition(20, 20);
+    myDeck[51].setCardPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);
 }
 
 Game::~Game()
@@ -93,21 +96,30 @@ Game::~Game()
 void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 {   
     while(window.pollEvent(event)){
-        if(event.type == sf::Event::Closed)
+       if(event.type == sf::Event::Closed)
             window.close();
     
         if(event.type == sf::Event::MouseButtonPressed){        
             sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
             sf::FloatRect rectBounds = myDeck[51].getCardSprite().getGlobalBounds();
+        
+            for(int i = 1; i < 12; i++){
+                sf::FloatRect rectBounds = myDeck[i].getCardSprite().getGlobalBounds();
+                if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                            myDeck[i].setFaceUp();
+                            myDeck[i].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+                       }
+            }
             
             if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
                 //check if mouse click inside the card  
                 if(myDeck[51].getCardSprite().getGlobalBounds().contains(mousePos)){
                     myDeck[51].flipCard();
-                    myDeck[51].getCardSprite().setPosition(150, 20);       
+                    myDeck[51].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);       
                     // calculate the offset from the top-left corner of the card
                     m_dragOffsetCard = mousePos - myDeck[51].getCardSprite().getPosition();   
                 }
+
             }
         }
 
@@ -142,7 +154,19 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 
 void Game::Update()
 {
+    // if Build_Pile is empty, then Ace needs to be the first in the stack.
+    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[0].getGlobalBounds())){
+        myDeck[0].getCardSprite().setPosition(BUILD_PILE_POS_X1, BUILD_PILE_POS_Y);
+        m_isDragCard = false;
+        myDeck[13].getCardSprite().setPosition(BUILD_PILE_POS_X2, BUILD_PILE_POS_Y);
+        myDeck[26].getCardSprite().setPosition(BUILD_PILE_POS_X3, BUILD_PILE_POS_Y);
+        myDeck[39].getCardSprite().setPosition(BUILD_PILE_POS_X4, BUILD_PILE_POS_Y);
 
+        for(int i = 1; i < 13; i++){
+            myDeck[i].getCardSprite().setPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);
+            myDeck[i].setFaceDown();
+        }
+    }
 }
 
 void Game::Render(sf::RenderWindow &window)

@@ -10,9 +10,10 @@ int main()
     sf::Event event;
     Game game;
 
+    // Game loop
     while (window.isOpen()) {
         game.ProcessInput(window, event);
-
+        game.Update();
         // Clear the window with black color
         window.clear(sf::Color(0, 102, 0));
 
