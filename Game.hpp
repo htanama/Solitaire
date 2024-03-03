@@ -17,15 +17,13 @@ class Game
         void Render(sf::RenderWindow &window);
         
         void PutCardOnTable();
+        void CheckBuildPile();
+        void CheckTableCol();
+
+
     private:
         bool m_isDragCard;
-       /* const int m_index[52] = { 22, 10, 40, 16, 31, 24, 7, 8, 9, 2, 11, 49, 13, 14,
-            15, 3, 51, 18, 36, 20, 21, 1, 23, 6, 25, 26, 27, 28, 29, 30, 5,
-            32, 33, 34, 35, 19, 37, 38, 39, 3, 41, 42, 43, 44, 45, 46, 47, 48, 
-            12, 50, 17, 52};
-        */
-       
-        int m_cardIndex[52] = { 
+        int m_cardIndex[52] = {
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
             11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 
             21, 22, 23, 24, 25, 26, 27, 28, 29, 30,

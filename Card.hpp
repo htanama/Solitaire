@@ -6,6 +6,7 @@
 #define CARD_WIDTH 98.5
 #define CARD_HEIGHT 153
 
+enum Color {BLACK, RED};
 enum Suit {CLUBS, DIAMONDS, HEARTS, SPADES};
 enum Rank {ACE=1, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING};
 
@@ -23,7 +24,7 @@ class Card
                     Nine, Ten, Jack, Queen, King }; // x-coordinate in spritesheetTexture
         */
 
-        int m_suit, m_rank;
+        int m_suit, m_rank, m_color;
 
         sf::Texture m_spriteSheetTexture;
         sf::Sprite m_backSprite;
@@ -31,10 +32,13 @@ class Card
     public: 
         Card();
         ~Card();
-        void RandomInit();
         void setFaceDown();
         void setFaceUp();
+        void setCardColor(int color);
+        int getCardColor();
+        void setCardSuit(int suit);
         int getCardSuit();
+        void setCardRank(int rank);
         int getCardRank();
         void flipCard();
         bool getIsFaceUp();

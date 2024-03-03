@@ -6,7 +6,8 @@
 
 Card::Card()
 :m_isFaceUp(false)
-{
+{   
+    // Get the spritesheet from file  and put it on the sf::Texture m_spriteSheetTexture
     if(!m_spriteSheetTexture.loadFromFile("./assets/card-deck.png"))
     {
         std::cerr<<"Error loading spritesheet!\n";
@@ -16,30 +17,13 @@ Card::Card()
     m_backSprite.setTexture(m_spriteSheetTexture);
     m_backSprite.setTextureRect(sf::IntRect(CARD_WIDTH*2, CARD_HEIGHT * 4, CARD_WIDTH, CARD_HEIGHT)); 
 
-
-    // return the card King of Diamond when it is faceUP
-    m_frontSprite.setTexture(m_spriteSheetTexture);
-    m_frontSprite.setTextureRect(sf::IntRect(CARD_WIDTH*(KING-1),CARD_HEIGHT*DIAMONDS, CARD_WIDTH, CARD_HEIGHT));
+    
 
 }
 
 Card::~Card()
 {
 
-}
-void Card::RandomInit()
-{
-    //TODO: Random Inititialize the front of the card
-    srand(time(0));
-    int randomY = rand() % 5;
-    int randomX = rand() % 14;
-    
-    
-    m_frontSprite.setTexture(m_spriteSheetTexture);
-    m_frontSprite.setTextureRect(sf::IntRect(CARD_WIDTH*randomX, CARD_HEIGHT*randomY, CARD_WIDTH, CARD_HEIGHT));
-    
-    m_suit = randomY;
-    m_rank = randomX;
 }
 
 void Card::setFaceDown()
@@ -62,9 +46,29 @@ bool Card::getIsFaceUp()
     return m_isFaceUp;
 }
 
+void Card::setCardColor(int color)
+{
+    m_color = color;
+}
+
+int Card::getCardColor()
+{
+    return m_color;
+}
+
+void Card::setCardSuit(int suit)
+{
+    m_suit = suit;
+}
+
 int Card::getCardSuit()
 {
     return m_suit;
+}
+
+void Card::setCardRank(int rank)
+{
+    m_rank = rank;
 }
 
 int Card::getCardRank()
