@@ -11,7 +11,8 @@
 #include <random>
 
 
-Game::Game():myDeck(52),tempDeck(52), m_isDragCard(false)
+Game::Game():myDeck(52),tempDeck(52), m_isDragCard1(false),m_isDragDiscardPile(false),
+m_isDragCard2(false), m_isDragCard3(false), m_isDragCard4(false), m_isDragCard6(false) 
 {
     if(!m_pilesTexture.loadFromFile("./assets/FinalRectangle.png")){
         std::cerr<<"Error Loading FinalRectangle.png!\n";
@@ -67,24 +68,38 @@ Game::Game():myDeck(52),tempDeck(52), m_isDragCard(false)
         if(i == 13) ++suit;
         if(i == 26) ++suit;
         if(i == 39) ++suit;
-
-        // tempDeck[i].flipCard();
-        // tempDeck[i].getCardSprite().setPosition(20+(20*i), 200);
+        
+        /*/ FOR TESTING
+        tempDeck[i].setFaceUp();
+        tempDeck[i].getCardSprite().setPosition(20+(20*i), 200);
+        myDeck[i].setFaceUp();
+        myDeck[i].getCardSprite().setPosition(20+(20*i), 400);
+        */
+   
     }
     
       
     // Create a random device
     std::random_device rd;
     // Initialize a generator
-    std:;std::mt19937 g(rd());
+    std::mt19937 g(rd());
 
     //Suffle the array
     std::shuffle(std::begin(m_cardIndex), std::end(m_cardIndex), g);
     
     for(int i = 0; i < 52; i++){     
         myDeck[i] = tempDeck[m_cardIndex[i]];
+        //myDeck[i] = tempDeck[i];
+        std::cout<< m_cardIndex[i] <<", ";
+ 
+        // for testing
+        //myDeck[i].setFaceUp();
+        //myDeck[i].getCardSprite().setPosition(20+(20*i), 400);
+ 
     }
-    
+    std::cout<<std::endl;
+
+
     // We put 28 cards on the tables
     PutCardOnTable();
 
@@ -93,9 +108,9 @@ Game::Game():myDeck(52),tempDeck(52), m_isDragCard(false)
         myDeck[i].setFaceDown();
         myDeck[i].setCardPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);
     }
-
-    CheckTableCol();
+    // Top of Draw Pile is myDeck[51].setFaceUp();
    
+
 }
 
 Game::~Game()
@@ -105,42 +120,65 @@ Game::~Game()
 
 void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 {   
-    while(window.pollEvent(event)){
-       if(event.type == sf::Event::Closed)
-            window.close();
-    
-        if(event.type == sf::Event::MouseButtonPressed){        
-            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-            sf::FloatRect rectBounds = myDeck[51].getCardSprite().getGlobalBounds();
-        
-            for(int i = 1; i < 12; i++){
-                sf::FloatRect rectBounds = myDeck[i].getCardSprite().getGlobalBounds();
-                if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
-                            myDeck[i].setFaceUp();
-                            myDeck[i].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
-                       }
-            }
-            
-            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
-                //check if mouse click inside the card  
-                if(myDeck[51].getCardSprite().getGlobalBounds().contains(mousePos)){
-                    myDeck[51].flipCard();
-                    myDeck[51].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);       
-                    // calculate the offset from the top-left corner of the card
-                    m_dragOffsetCard = mousePos - myDeck[51].getCardSprite().getPosition();   
-                }
+    sf::Vector2f tempPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
 
+    while(window.pollEvent(event)){
+        if(event.type == sf::Event::Closed)
+            window.close();
+ 
+       
+        sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        
+        //When the mouse is cliced on Draw Pile, it will move to Discard Pile with card facing up
+        if(event.type == sf::Event::MouseButtonPressed){        
+            sf::FloatRect rectBounds = myDeck[51].getCardSprite().getGlobalBounds();
+           
+            // checking whether the mouse position is within the bounds of the rectangle myDeck[__]. 
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                //check if mouse click inside the card            
+                if(myDeck[51].getCardSprite().getGlobalBounds().contains(mousePos)){
+                    myDeck[51].setFaceUp();
+                    myDeck[51].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+                }
             }
         }
-        // when mouse button is pressed drag the card.
+       
+        //When a mouse is click on the Discard Pile, you can drag the Card to put on the Table.
         if(event.type == sf::Event::MouseButtonPressed){
-            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            sf::FloatRect rectBounds = myDeck[51].getCardSprite().getGlobalBounds();
+
+            // checking whether the mouse position is within the bounds of the rectangle myDeck[__]. 
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                // check if mouse click inside the card
+                if(myDeck[51].getCardSprite().getGlobalBounds().contains(mousePos)){
+                    m_isDragDiscardPile = !m_isDragDiscardPile;
+                    // Calculate the offset from the top-left corner of the card
+                    m_dragOffsetCard = mousePos - myDeck[51].getCardSprite().getPosition();
+                }
+            }
+        }
+        if(event.type == sf::Event::MouseButtonReleased){
+            if(event.mouseButton.button == sf::Mouse::Left){
+                m_isDragDiscardPile = false;           
+                //TODO need to find the correct position for myDeck[51]
+        //        myDeck[].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 6)); 
+            }
+        }
+        //mapPixelToCoords(pixelPos) is convert to world coordinates
+        if(m_isDragDiscardPile){
+            myDeck[51].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+        }        
+
+
+        // when mouse button is pressed drag the card at Table Col 1.
+        if(event.type == sf::Event::MouseButtonPressed){
             sf::FloatRect rectBounds = myDeck[0].getCardSprite().getGlobalBounds();
 
+            // checking whether the mouse position is within the bounds of the rectangle myDeck[0].
             if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
                 // check if mouse click inside the card
                 if(myDeck[0].getCardSprite().getGlobalBounds().contains(mousePos)){
-                    m_isDragCard = true;
+                    m_isDragCard1 = true;
                     // Calculate the offset from the top-left corner of the card
                     m_dragOffsetCard = mousePos - myDeck[0].getCardSprite().getPosition();
                 }
@@ -149,16 +187,224 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
         }
         if(event.type == sf::Event::MouseButtonReleased){
             if(event.mouseButton.button == sf::Mouse::Left){
-                m_isDragCard = false;
+
+                // if Build_Pile is empty, then Ace needs to be the first in the stack.
+                if(myDeck[0].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[0].getGlobalBounds()) &&
+                myDeck[0].getCardRank() == ACE){
+        
+                    myDeck[0].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y);
+                    m_isDragCard1 = false;
+                    myDeck[0].setFaceUp();
+                }
+                else{
+                    m_isDragCard1 = false;
+                    myDeck[0].getCardSprite().setPosition(TABLE_COL_POS_X , TABLE_COL_POS_Y);
+                }
             }
         }
-
         //mapPixelToCoords(pixelPos) is convert to world coordinates
-        if(m_isDragCard){
+        if(m_isDragCard1){
             myDeck[0].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
         }        
+         
+        // when mouse button is pressed drag the card at Table Col 2.
+        if(event.type == sf::Event::MouseButtonPressed){
+            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            sf::FloatRect rectBounds = myDeck[2].getCardSprite().getGlobalBounds();
+
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                // check if mouse click inside the card
+                if(myDeck[2].getCardSprite().getGlobalBounds().contains(mousePos)){
+                    m_isDragCard2 = true;
+                    // Calculate the offset from the top-left corner of the card
+                    m_dragOffsetCard = mousePos - myDeck[2].getCardSprite().getPosition();
+                }
+            }
+        }
+        if(event.type == sf::Event::MouseButtonReleased){
+            if(event.mouseButton.button == sf::Mouse::Left){
+                m_isDragCard2 = false;         
+                myDeck[2].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 1), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1));
+            }
+        }
+        //mapPixelToCoords(pixelPos) is convert to world coordinates
+        if(m_isDragCard2){
+            myDeck[2].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+        }        
+
+
+        // when mouse button is pressed drag the card at Table Col 3.
+        if(event.type == sf::Event::MouseButtonPressed){
+            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            sf::FloatRect rectBounds = myDeck[5].getCardSprite().getGlobalBounds();
+
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                // check if mouse click inside the card
+                if(myDeck[5].getCardSprite().getGlobalBounds().contains(mousePos)){
+                    m_isDragCard3 = true;
+                    // Calculate the offset from the top-left corner of the card
+                    m_dragOffsetCard = mousePos - myDeck[5].getCardSprite().getPosition();
+                }
+            }
+
+        }
+        if(event.type == sf::Event::MouseButtonReleased){
+            if(event.mouseButton.button == sf::Mouse::Left){
+                m_isDragCard3 = false;         
+                myDeck[5].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 2), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
+            }
+        }
+        //mapPixelToCoords(pixelPos) is convert to world coordinates
+        if(m_isDragCard3){
+            myDeck[5].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+        }        
+
+
+        // when mouse button is pressed drag the card at Table Col 4.
+        if(event.type == sf::Event::MouseButtonPressed){
+            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            sf::FloatRect rectBounds = myDeck[9].getCardSprite().getGlobalBounds();
+
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                // check if mouse click inside the card
+                if(myDeck[9].getCardSprite().getGlobalBounds().contains(mousePos)){
+                    m_isDragCard4 = true;
+                    // Calculate the offset from the top-left corner of the card
+                    m_dragOffsetCard = mousePos - myDeck[9].getCardSprite().getPosition();
+                }
+            }
+
+        }
+        if(event.type == sf::Event::MouseButtonReleased){
+            if(event.mouseButton.button == sf::Mouse::Left){
+                m_isDragCard4 = false;         
+                myDeck[9].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+            }
+        }
+        //mapPixelToCoords(pixelPos) is convert to world coordinates
+        if(m_isDragCard4){
+            myDeck[9].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+        }        
+
+
+        // when mouse button is pressed drag the card at Table Col 5.
+        if(event.type == sf::Event::MouseButtonPressed){
+            sf::FloatRect rectBounds = myDeck[14].getCardSprite().getGlobalBounds();
+            // check if mouse click inside the card
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                // check if mouse click inside the card
+                if(myDeck[14].getCardSprite().getGlobalBounds().contains(mousePos)){
+                    m_isDragCard5 = true;
+                    // Calculate the offset from the top-left corner of the card
+                    m_dragOffsetCard = mousePos - myDeck[14].getCardSprite().getPosition();
+                }
+            }
+
+        }
+        if(event.type == sf::Event::MouseButtonReleased){
+            if(event.mouseButton.button == sf::Mouse::Left){
+                m_isDragCard5 = false;         
+                myDeck[14].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
+            }
+        }
+        //mapPixelToCoords(pixelPos) is convert to world coordinates
+        if(m_isDragCard5){
+            myDeck[14].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+        }        
+
         
-           
+        // when mouse button is pressed drag the card at Table Col 6.
+        if(event.type == sf::Event::MouseButtonPressed){
+            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            sf::FloatRect rectBounds = myDeck[20].getCardSprite().getGlobalBounds();
+
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                // check if mouse click inside the card
+                if(myDeck[20].getCardSprite().getGlobalBounds().contains(mousePos)){
+                    m_isDragCard6 = !m_isDragCard6;
+                    // Calculate the offset from the top-left corner of the card
+                    m_dragOffsetCard = mousePos - myDeck[20].getCardSprite().getPosition();
+                }
+            }
+
+        }
+        if(event.type == sf::Event::MouseButtonReleased){
+            if(event.mouseButton.button == sf::Mouse::Left){
+                m_isDragCard6 = false;         
+                myDeck[20].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 5)); 
+            }
+        }
+        //mapPixelToCoords(pixelPos) is convert to world coordinates
+        if(m_isDragCard6){
+            myDeck[20].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+        }        
+
+
+        // when mouse button is pressed drag the card at Table Col 7.
+        if(event.type == sf::Event::MouseButtonPressed){
+            sf::FloatRect rectBounds = myDeck[27].getCardSprite().getGlobalBounds();
+
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                // check if mouse click inside the card
+                if(myDeck[27].getCardSprite().getGlobalBounds().contains(mousePos)){
+                    m_isDragCard7 = !m_isDragCard7;
+                    // Calculate the offset from the top-left corner of the card
+                    m_dragOffsetCard = mousePos - myDeck[27].getCardSprite().getPosition();
+                }
+            }
+        }
+        if(event.type == sf::Event::MouseButtonReleased){
+            if(event.mouseButton.button == sf::Mouse::Left){
+                m_isDragCard7 = false;           
+                myDeck[27].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 6)); 
+            }
+        }
+        //mapPixelToCoords(pixelPos) is convert to world coordinates
+        if(m_isDragCard7){
+            myDeck[27].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+        }        
+
+
+
+        /*/finding and open all the card.
+        for(int i = 0; i < 52; i++){
+            if(event.type == sf::Event::MouseButtonPressed){
+                sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                sf::FloatRect rectBounds = myDeck[i].getCardSprite().getGlobalBounds();
+
+                if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
+                    // check if mouse click inside the card
+                    if(myDeck[i].getCardSprite().getGlobalBounds().contains(mousePos)){
+                        m_isDragCard6 = true;
+                        myDeck[i].setFaceUp();
+                        // Calculate the offset from the top-left corner of the card
+                        m_dragOffsetCard = mousePos - myDeck[i].getCardSprite().getPosition();
+                    }
+                }
+
+            }
+            if(event.type == sf::Event::MouseButtonReleased){
+                if(event.mouseButton.button == sf::Mouse::Left){
+                    m_isDragCard6 = false;         
+                }
+            }
+            //mapPixelToCoords(pixelPos) is convert to world coordinates
+            if(m_isDragCard6){
+                myDeck[i].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+            }        
+        }*/
+
+
+
+
+
+        
+
+
+
+
+
+
     }
 }
 
@@ -189,23 +435,57 @@ void Game::CheckTableCol()
     std::cout<<"Card rank: " << myDeck[0].getCardRank() << std::endl;
     std::cout<<"Card suit: " << strSuit << std::endl;
     std::cout<<"Card color: "<< strColor <<  std::endl;    
+
+    
+
 }
 
-void Game::Update()
+void Game::CheckBuildPile()
 {
-    // if Build_Pile is empty, then Ace needs to be the first in the stack.
-    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[0].getGlobalBounds())){
-        myDeck[0].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y);
-        m_isDragCard = false;
-        myDeck[13].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 1), BUILD_PILE_POS_Y);
-        myDeck[26].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 2), BUILD_PILE_POS_Y);
-        myDeck[39].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y);
+    /*
+    m_BuildPilesMap[0].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[1].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 1), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[2].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 2), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y); 
+    */
 
-        for(int i = 1; i < 13; i++){
-            myDeck[i].getCardSprite().setPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);
-            myDeck[i].setFaceDown();
+    // if Build_Pile is empty, then Ace needs to be the first in the stack.
+    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[0].getGlobalBounds()) &&
+            myDeck[0].getCardRank() == ACE)
+    {        
+        myDeck[0].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y);
+        m_isDragCard1 = false;
+        myDeck[0].setFaceUp();
+    }
+    
+    for(int i = 0; i < 4; i++)
+    {
+        // if Build_Pile is empty, then Ace needs to be the first in the stack.
+        if(myDeck[i].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[i].getGlobalBounds()))
+           // myDeck[i].getCardSuit() == CLUBS)
+        {        
+            myDeck[i].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
+            m_isDragCard1 = false;
+            myDeck[i].setFaceUp();
+        }
+        
+        // Testing to put Card on myDeck[51] to the Build Pile 1, 2, 3, or 4
+        if(myDeck[51].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[i].getGlobalBounds()))
+        {        
+            myDeck[51].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
+            m_isDragCard1 = false;
+            myDeck[51].setFaceUp();
         }
     }
+
+}
+void Game::Update()
+{
+    CheckBuildPile();
+
+
+
+
 }
 
 void Game::PutCardOnTable()
@@ -287,7 +567,7 @@ void Game::PutCardOnTable()
     myDeck[27].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 6)); 
 
 
-
+ 
 
 }
 
@@ -304,12 +584,19 @@ void Game::Render(sf::RenderWindow &window)
         window.draw(myDeck[i].getCardSprite());
     }
 
+    // Draw Card on Table
     for(int i = 0; i < 28; i++){
         window.draw(myDeck[i].getCardSprite());
     }
-   
-    /*Test for in ordered card
+  
+
+ 
+    /*/Test for in ordered card
     for(int i = 0; i < 52; i++){
         window.draw(tempDeck[i].getCardSprite());
-    }*/ 
+        window.draw(myDeck[i].getCardSprite());
+    }*/
+    
+   
+
 }
