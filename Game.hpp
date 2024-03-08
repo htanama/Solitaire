@@ -54,6 +54,8 @@ class Game
         const int TABLE_COL_POS_Y = 200;
         const int TABLE_OFFSET_POS_X = 130;
         const int TABLE_OFFSET_POS_Y = 30;
+        const int TABLE_NUM_COL = 7;
+        const int TABLE_NUM_CARDS = 28; // there are 28 cards on table but index start with zero
 
         sf::Texture m_pilesTexture;
         sf::Sprite m_pilesSprite;

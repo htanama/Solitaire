@@ -490,9 +490,9 @@ void Game::Update()
 
 void Game::PutCardOnTable()
 {
-    // Table Col one, one card, flip open. 
+    /*/ Table Col one, one card, flip open. 
     myDeck[0].setFaceUp();
-    myDeck[0].getCardSprite().setPosition(TABLE_COL_POS_X , TABLE_COL_POS_Y);
+    myDeck[0].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 0), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
 
     // Table Col two, two cards, one closed, one flip open.
     myDeck[1].setFaceDown();
@@ -516,10 +516,10 @@ void Game::PutCardOnTable()
     myDeck[8].setFaceDown();
     myDeck[9].setFaceUp();
 
-    myDeck[6].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
-    myDeck[7].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
-    myDeck[8].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2)); 
-    myDeck[9].getCardSprite().setPosition(TABLE_COL_POS_X + (3*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+    myDeck[6].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 3), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[7].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 3), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
+    myDeck[8].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 3), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2)); 
+    myDeck[9].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 3), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
 
     //Table Col 5, 5 cards, all closed, one at the bottom flip open. 
     myDeck[10].setFaceDown(); 
@@ -528,11 +528,11 @@ void Game::PutCardOnTable()
     myDeck[13].setFaceDown();
     myDeck[14].setFaceUp();
 
-    myDeck[10].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
-    myDeck[11].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
-    myDeck[12].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
-    myDeck[13].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
-    myDeck[14].getCardSprite().setPosition(TABLE_COL_POS_X + (4*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
+    myDeck[10].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 4), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[11].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 4), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
+    myDeck[12].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 4), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
+    myDeck[13].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 4), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+    myDeck[14].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 4), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
 
     //Table Col 6, 6 cards, all closed, one at the bottom flip open. 
     myDeck[15].setFaceDown(); 
@@ -542,12 +542,12 @@ void Game::PutCardOnTable()
     myDeck[19].setFaceDown(); 
     myDeck[20].setFaceUp();
 
-    myDeck[15].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
-    myDeck[16].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
-    myDeck[17].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
-    myDeck[18].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
-    myDeck[19].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
-    myDeck[20].getCardSprite().setPosition(TABLE_COL_POS_X + (5*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 5)); 
+    myDeck[15].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[16].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
+    myDeck[17].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
+    myDeck[18].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+    myDeck[19].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
+    myDeck[20].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 5)); 
 
     //Table Col 7, 7 cards, all closed, one at the bottom flip open. 
     myDeck[21].setFaceDown(); 
@@ -558,16 +558,25 @@ void Game::PutCardOnTable()
     myDeck[26].setFaceDown();
     myDeck[27].setFaceUp();
 
-    myDeck[21].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
-    myDeck[22].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
-    myDeck[23].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
-    myDeck[24].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
-    myDeck[25].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
-    myDeck[26].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 5)); 
-    myDeck[27].getCardSprite().setPosition(TABLE_COL_POS_X + (6*TABLE_OFFSET_POS_X), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 6)); 
+    myDeck[21].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 0));
+    myDeck[22].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1)); 
+    myDeck[23].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2));
+    myDeck[24].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3)); 
+    myDeck[25].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 4)); 
+    myDeck[26].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 5)); 
+    myDeck[27].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 6)); 
+    */
 
+    int myDeck_index = 0;
 
- 
+    for (int j = 0; j < TABLE_NUM_COL; j++){
+       for(int i = 0; i < j + 1; i++){
+         myDeck[myDeck_index].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * j), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * i));           
+         ++myDeck_index;
+       }
+       myDeck[myDeck_index - 1].flipCard();
+       
+    } 
 
 }
 
