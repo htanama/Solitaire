@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "Card.hpp"
+#include <SFML/Window/Keyboard.hpp>
 #include <vector>
 #include <unordered_map>
 
@@ -11,6 +12,7 @@ class Game
     public:
         Game();
         ~Game();
+        void CardInit();
         void ProcessInput(sf::RenderWindow &window, sf::Event event);
         void Update();
         void Render(sf::RenderWindow &window);
@@ -26,11 +28,6 @@ class Game
         bool m_isDragCard1;
         // m_isDragCard2, m_isDragCard3,
         // m_isDragCard4, m_isDragCard5, m_isDragCard6, m_isDragCard7, m_isDragDiscardPile;
-        
-        int m_tempIndex[52] = {42, 51, 10, 32, 5, 21, 25, 28, 11, 9, 45, 13, 16, 26, 
-            30, 37, 22, 52, 7, 35, 44, 8, 48, 50, 38, 46, 34, 1, 3, 43, 12, 18, 15, 14,
-            39, 41, 20, 24, 33, 29, 6, 27, 23, 2, 47, 4, 31, 36, 17, 40, 19, 49,
-        }; // missing Ace of Clubs 
 
         int m_tempIndex2[52] = {45, 1, 40, 7, 25, 24, 5, 51, 30, 27, 52, 20, 48, 28, 10,
             43, 41, 6, 2, 37, 3, 38, 35, 16, 17, 19, 36, 11, 31, 14, 46, 26, 50, 18, 47, 
@@ -47,6 +44,7 @@ class Game
         };
         
         bool m_isDiscardPileEmpty;
+        int BuildPile0_Index, BuildPile1_Index, BuildPile2_Index, BuildPile3_Index;
 
         const int DISCARD_POSITION_X = 150;
         const int DISCARD_POSITION_Y = 20;
@@ -70,7 +68,7 @@ class Game
 
         std::unordered_map<int, sf::Sprite> m_BuildPilesMap;
         Card m_card;
-        std::vector<Card> myDeck, tempDeck;
+        std::vector<Card> myDeck,tempDeck, BuildPile0, BuildPile1, BuildPile2, BuildPile3;
         
         
         
