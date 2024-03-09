@@ -19,7 +19,7 @@ Card::Card()
     
     m_backSprite.setTexture(m_spriteSheetTexture);
     m_backSprite.setTextureRect(sf::IntRect(CARD_WIDTH*2, CARD_HEIGHT * 4, CARD_WIDTH, CARD_HEIGHT)); 
-
+    m_backSprite.setPosition(-100,-100); // Initial m_backSprite card will be out of the screen (-100, -100);
 }
 
 Card::~Card()

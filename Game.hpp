@@ -20,6 +20,7 @@ class Game
         void PutCardOnTable();
         void CheckBuildPile();
         void CheckTableCol();
+        void CheckDiscardPile();
         void setIsDiscardPileEmpty(bool);
         bool getIsDiscardPileEmpty();
         
@@ -46,13 +47,20 @@ class Game
         bool m_isDiscardPileEmpty;
         int BuildPile0_Index, BuildPile1_Index, BuildPile2_Index, BuildPile3_Index;
 
+        // Discard Pile Position
         const int DISCARD_POSITION_X = 150;
         const int DISCARD_POSITION_Y = 20;
+        
+        // Draw Pile Card Position
         const int DRAW_PILE_POSX = 20;
         const int DRAW_PILE_POSY = 20;
+        
+        // Build Pile Card Position
         const int BUILD_PILE_POS_X = 550;
         const int BUILD_PILE_POS_Y = 20;
         const int BUILD_PILE_OFFSET_X = 150;
+        
+        // Position for the Card on the Table
         const int TABLE_COL_POS_X = 20;
         const int TABLE_COL_POS_Y = 200;
         const int TABLE_OFFSET_POS_X = 130;
@@ -67,8 +75,10 @@ class Game
 
 
         std::unordered_map<int, sf::Sprite> m_BuildPilesMap;
+        
         Card m_card;
         std::vector<Card> myDeck,tempDeck, BuildPile0, BuildPile1, BuildPile2, BuildPile3;
+        std::vector<Card> DiscardCard;
         
         
         

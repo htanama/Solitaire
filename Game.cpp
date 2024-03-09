@@ -17,7 +17,7 @@ Game::Game():myDeck(52), tempDeck(52), m_isDiscardPileEmpty(false),m_isDragCard1
     BuildPile2(14), BuildPile3(14), BuildPile0_Index(1), BuildPile1_Index(1), BuildPile2_Index(1), BuildPile3_Index(1)
 {
     CardInit();
-
+    m_isDiscardPileEmpty = true;
 }
 
 Game::~Game()
@@ -30,7 +30,7 @@ void Game::CardInit()
       if(!m_pilesTexture.loadFromFile("./assets/FinalRectangle.png")){
           std::cerr<<"Error Loading FinalRectangle.png!\n";
       }
-      m_pilesSprite.setTexture(m_pilesTexture);                                                                                                             
+      m_pilesSprite.setTexture(m_pilesTexture);                                                                                                  
       
       for(int i = 0; i < 5; i++){
           m_BuildPilesMap[i] = m_pilesSprite;
@@ -123,7 +123,7 @@ void Game::CardInit()
   
       // We put the remaining cards on the Draw Pile Face Down
       for(int i = 28; i < 52; i ++){
-          myDeck[i].setFaceUp();
+          myDeck[i].setFaceDown();
           myDeck[i].setCardPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);          
       }
       // Top of Draw Pile is myDeck[51].setFaceUp(); // For Testing
@@ -149,36 +149,35 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
         
         }
         
-        /*/ Draw Cards from Deck
-        int j = 51;
-       
-        do
-        { 
-            sf::FloatRect rectBounds = myDeck[j].getCardSprite().getGlobalBounds();  
-            // check whether the moues position is within the bounds of the rectangle Card m_frontSprite   
-            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){  
-                if(event.mouseButton.button == sf::Mouse::Left)
-                {
-                    if(myDeck[j].getCardSprite().getGlobalBounds().contains(mousePos) && m_isDiscardPileEmpty == true && 
-                            myDeck[j].getIsOnBuildPile() == false)
-                    { 
-                        
-                        std::cout<<"mouse click on the deck pile"<<std::endl;         
-                        myDeck[j].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
-                        m_isDiscardPileEmpty = false;
-                          
-                    }
-                    else 
+        // Draw Cards from Deck
+        if(m_isDiscardPileEmpty)
+        {   
+            DiscardCard.resize(1);
+            for(int j = 51; j >= 28; j--)
+            {
+                sf::FloatRect rectBounds = myDeck[j].getCardSprite().getGlobalBounds();  
+                // check whether the moues position is within the bounds of the rectangle Card m_frontSprite   
+                if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){ 
+                    
+                    // If myDeck[j].getIsFaceUp == false, then we can flip the card open, so we can let the Discarded Card move freely 
+                    if(event.mouseButton.button == sf::Mouse::Left && myDeck[j].getIsFaceUp() == false)
                     {
-                        m_isDiscardPileEmpty = true;
+                        if(myDeck[j].getCardSprite().getGlobalBounds().contains(mousePos) && m_isDiscardPileEmpty == true && 
+                            myDeck[j].getIsOnBuildPile() == false)
+                        { 
+                            myDeck[j].setFaceUp();
+                            myDeck[j].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+                            m_isDiscardPileEmpty = false;
+                            break;
+                        }
                     }
                 }
-            }
-            --j;
-        }while(j >= 28);        
-        */
-    
             
+             }
+
+        }        
+             
+                    
 
 
 
@@ -228,6 +227,28 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 
 
     }
+}
+
+void Game::CheckDiscardPile()
+{   
+    int tempIndex = myDeck.size()-1; 
+
+    if(!m_isDiscardPileEmpty){
+
+        std::cout<<myDeck[51].getCardPositionX()<<std::endl;
+        
+        DiscardCard[0].setCardPosition(myDeck[51].getCardPositionX(), myDeck[51].getCardPositionY());
+
+
+        if(DiscardCard[0].getCardPositionX() != 150 && DiscardCard[0].getCardPositionY() != 20)
+        {
+            m_isDiscardPileEmpty = true;
+            std::cout<<"DiscardCard has moved"<<std::endl;
+        }
+
+    }
+
+
 }
 
 void Game::CheckTableCol()
@@ -470,7 +491,7 @@ void Game::CheckTableCol()
          }
     }*/ 
 
-
+    /*
     for(int i = 0; i < 52; i++){
         if(myDeck[i].getIsGetPickUp()){
             if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[i+1].getCardSprite().getGlobalBounds()) && myDeck[i].getIsFaceUp()){
@@ -491,7 +512,7 @@ void Game::CheckTableCol()
 
          }
 
-     }
+     }*/
             
         
 
@@ -584,6 +605,7 @@ void Game::Update()
    
     CheckBuildPile();
     CheckTableCol();
+    CheckDiscardPile();
 
     /*/for testing open all the cards
     for(int i = 0; i < myDeck.size(); i++){
@@ -690,6 +712,7 @@ void Game::Render(sf::RenderWindow &window)
     for(int i = 0; i < 4; i++){
         window.draw(m_BuildPilesMap[i]);
     }
+
     // Discard Pile Next to the Draw Pile
     window.draw(m_BuildPilesMap[4]); 
 
