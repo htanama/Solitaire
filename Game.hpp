@@ -18,11 +18,14 @@ class Game
         void PutCardOnTable();
         void CheckBuildPile();
         void CheckTableCol();
-
+        void setIsDiscardPileEmpty(bool);
+        bool getIsDiscardPileEmpty();
+        
 
     private:
-        bool m_isDragCard1, m_isDragCard2, m_isDragCard3,
-             m_isDragCard4, m_isDragCard5, m_isDragCard6, m_isDragCard7, m_isDragDiscardPile;
+        bool m_isDragCard1;
+        // m_isDragCard2, m_isDragCard3,
+        // m_isDragCard4, m_isDragCard5, m_isDragCard6, m_isDragCard7, m_isDragDiscardPile;
         
         int m_tempIndex[52] = {42, 51, 10, 32, 5, 21, 25, 28, 11, 9, 45, 13, 16, 26, 
             30, 37, 22, 52, 7, 35, 44, 8, 48, 50, 38, 46, 34, 1, 3, 43, 12, 18, 15, 14,
@@ -42,6 +45,8 @@ class Game
             41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 
             51
         };
+        
+        bool m_isDiscardPileEmpty;
 
         const int DISCARD_POSITION_X = 150;
         const int DISCARD_POSITION_Y = 20;
@@ -56,6 +61,7 @@ class Game
         const int TABLE_OFFSET_POS_Y = 30;
         const int TABLE_NUM_COL = 7;
         const int TABLE_NUM_CARDS = 28; // there are 28 cards on table but index start with zero
+        
 
         sf::Texture m_pilesTexture;
         sf::Sprite m_pilesSprite;

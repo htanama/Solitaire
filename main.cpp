@@ -7,6 +7,10 @@ int main()
 {
     // Create a new render window
     sf::RenderWindow window(sf::VideoMode(1200, 900), "SFML window", sf::Style::Close);
+    
+    // Set the frame rate limit to 60 FPS
+    window.setFramerateLimit(60);
+    
     sf::Event event;
     Game game;
 

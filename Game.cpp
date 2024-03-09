@@ -1,5 +1,6 @@
 #include "Game.hpp"
 #include "Card.hpp"
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
@@ -11,8 +12,7 @@
 #include <random>
 
 
-Game::Game():myDeck(52),tempDeck(52), m_isDragCard1(false),m_isDragDiscardPile(false),
-m_isDragCard2(false), m_isDragCard3(false), m_isDragCard4(false), m_isDragCard6(false) 
+Game::Game():myDeck(52),tempDeck(52), m_isDiscardPileEmpty(false),m_isDragCard1(false)
 {
     if(!m_pilesTexture.loadFromFile("./assets/FinalRectangle.png")){
         std::cerr<<"Error Loading FinalRectangle.png!\n";
@@ -55,8 +55,9 @@ m_isDragCard2(false), m_isDragCard3(false), m_isDragCard4(false), m_isDragCard6(
         tempDeck[i].setCardRank(rank);
         tempDeck[i].setCardSuit(suit);   
         
+        // set color of the suit base on the Suit - enum Suit {CLUBS, DIAMONDS, HEARTS, SPADES};   
         if(suit == 1)
-            tempDeck[i].setCardSuit(1); 
+            tempDeck[i].setCardColor(1); 
         if(suit == 2)
             tempDeck[i].setCardColor(1);
         if(suit == 0)
@@ -90,11 +91,6 @@ m_isDragCard2(false), m_isDragCard3(false), m_isDragCard4(false), m_isDragCard6(
     for(int i = 0; i < 52; i++){     
         myDeck[i] = tempDeck[m_cardIndex[i]];
         //myDeck[i] = tempDeck[i];
-        std::cout<< m_cardIndex[i] <<", ";
- 
-        // for testing
-        //myDeck[i].setFaceUp();
-        //myDeck[i].getCardSprite().setPosition(20+(20*i), 400);
  
     }
     std::cout<<std::endl;
@@ -107,6 +103,7 @@ m_isDragCard2(false), m_isDragCard3(false), m_isDragCard4(false), m_isDragCard6(
     for(int i = 28; i < 52; i ++){
         myDeck[i].setFaceDown();
         myDeck[i].setCardPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);
+ 
     }
     // Top of Draw Pile is myDeck[51].setFaceUp();
    
@@ -120,30 +117,52 @@ Game::~Game()
 
 void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 {   
-    sf::Vector2f tempPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+    // sf::Vector2f tempPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));    
 
-    while(window.pollEvent(event)){
+    while(window.pollEvent(event))
+    {
         if(event.type == sf::Event::Closed)
             window.close();
- 
-       
-        sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+
+        for(int i = 0; i < 52; i++){         
+            myDeck[i].cardProcessInput(window,event);
         
-        //When the mouse is cliced on Draw Pile, it will move to Discard Pile with card facing up
-        if(event.type == sf::Event::MouseButtonPressed){        
-            sf::FloatRect rectBounds = myDeck[51].getCardSprite().getGlobalBounds();
-           
-            // checking whether the mouse position is within the bounds of the rectangle myDeck[__]. 
-            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
-                //check if mouse click inside the card            
-                if(myDeck[51].getCardSprite().getGlobalBounds().contains(mousePos)){
-                    myDeck[51].setFaceUp();
-                    myDeck[51].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+        }
+        
+        int j = 51;
+       
+        do
+        { 
+            sf::FloatRect rectBounds = myDeck[j].getCardSprite().getGlobalBounds();  
+            // check whether the moues position is within the bounds of the rectangle Card m_frontSprite   
+            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){  
+                if(event.mouseButton.button == sf::Mouse::Left)
+                {
+                    if(myDeck[j].getCardSprite().getGlobalBounds().contains(mousePos) && m_isDiscardPileEmpty == true && 
+                            myDeck[j].getIsOnBuildPile() == false)
+                    { 
+                        
+                        std::cout<<"mouse click on the deck pile"<<std::endl;         
+                        myDeck[j].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+                        m_isDiscardPileEmpty = false;
+                          
+                    }
+                    else 
+                    {
+                        m_isDiscardPileEmpty = true;
+                    }
                 }
             }
-        }
-       
-        //When a mouse is click on the Discard Pile, you can drag the Card to put on the Table.
+            --j;
+        }while(j >= 28);        
+
+    
+            
+
+
+        /*/When a mouse is click on the Discard Pile, you can drag the Card to put on the Table.
         if(event.type == sf::Event::MouseButtonPressed){
             sf::FloatRect rectBounds = myDeck[51].getCardSprite().getGlobalBounds();
 
@@ -198,13 +217,14 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
                 }
                 else{
                     m_isDragCard1 = false;
-                    myDeck[0].getCardSprite().setPosition(TABLE_COL_POS_X , TABLE_COL_POS_Y);
+                //myDeck[0].getCardSprite().setPosition(TABLE_COL_POS_X , TABLE_COL_POS_Y);
                 }
             }
         }
         //mapPixelToCoords(pixelPos) is convert to world coordinates
         if(m_isDragCard1){
-            myDeck[0].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+           myDeck[0].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
+
         }        
          
         // when mouse button is pressed drag the card at Table Col 2.
@@ -366,7 +386,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 
 
 
-        /*/finding and open all the card.
+        //finding and open all the card.
         for(int i = 0; i < 52; i++){
             if(event.type == sf::Event::MouseButtonPressed){
                 sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -392,15 +412,15 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
             if(m_isDragCard6){
                 myDeck[i].getCardSprite().setPosition(window.mapPixelToCoords(sf::Mouse::getPosition(window)) - m_dragOffsetCard);
             }        
-        }*/
+        }
 
-
+        */
 
 
 
         
 
-
+        
 
 
 
@@ -410,6 +430,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 
 void Game::CheckTableCol()
 {
+    /*/ Test: Check the correct rank and suit of a card
     std::string strSuit, strColor;
     
     if(myDeck[0].getCardColor() == 0)
@@ -436,7 +457,246 @@ void Game::CheckTableCol()
     std::cout<<"Card suit: " << strSuit << std::endl;
     std::cout<<"Card color: "<< strColor <<  std::endl;    
 
+    if(myDeck[2].getCardColor() == 0)
+        strColor = "Black";
+    if(myDeck[2].getCardColor() == 1)
+        strColor = "Red";
+
+    switch (myDeck[2].getCardSuit()){
+        case CLUBS:
+            strSuit = "Clubs";
+            break;
+        case DIAMONDS:
+            strSuit = "Diamond";
+            break;
+        case HEARTS:
+            strSuit = "Hearts";
+            break;
+        case SPADES:
+            strSuit = "Spades";
+            break;
+    }
+
+    std::cout<<"Card rank: " << myDeck[2].getCardRank() << std::endl;
+    std::cout<<"Card suit: " << strSuit << std::endl;
+    std::cout<<"Card color: "<< strColor <<  std::endl;    
+
+
+    if(myDeck[5].getCardColor() == 0)
+        strColor = "Black";
+    if(myDeck[5].getCardColor() == 1)
+        strColor = "Red";
+
+    switch (myDeck[5].getCardSuit()){
+        case CLUBS:
+            strSuit = "Clubs";
+            break;
+        case DIAMONDS:
+            strSuit = "Diamond";
+            break;
+        case HEARTS:
+            strSuit = "Hearts";
+            break;
+        case SPADES:
+            strSuit = "Spades";
+            break;
+    }
+
+    std::cout<<"Card rank: " << myDeck[5].getCardRank() << std::endl;
+    std::cout<<"Card suit: " << strSuit << std::endl;
+    std::cout<<"Card color: "<< strColor <<  std::endl;    
+
+    if(myDeck[9].getCardColor() == 0)
+        strColor = "Black";
+    if(myDeck[9].getCardColor() == 1)
+        strColor = "Red";
+
+    switch (myDeck[9].getCardSuit()){
+        case CLUBS:
+            strSuit = "Clubs";
+            break;
+        case DIAMONDS:
+            strSuit = "Diamond";
+            break;
+        case HEARTS:
+            strSuit = "Hearts";
+            break;
+        case SPADES:
+            strSuit = "Spades";
+            break;
+    }
+
+    std::cout<<"Card rank: " << myDeck[9].getCardRank() << std::endl;
+    std::cout<<"Card suit: " << strSuit << std::endl;
+    std::cout<<"Card color: "<< strColor <<  std::endl;    
+
+    if(myDeck[14].getCardColor() == 0)
+        strColor = "Black";
+    if(myDeck[14].getCardColor() == 1)
+        strColor = "Red";
+
+    switch (myDeck[14].getCardSuit()){
+        case CLUBS:
+            strSuit = "Clubs";
+            break;
+        case DIAMONDS:
+            strSuit = "Diamond";
+            break;
+        case HEARTS:
+            strSuit = "Hearts";
+            break;
+        case SPADES:
+            strSuit = "Spades";
+            break;
+    }
+
+    std::cout<<"Card rank: " << myDeck[14].getCardRank() << std::endl;
+    std::cout<<"Card suit: " << strSuit << std::endl;
+    std::cout<<"Card color: "<< strColor <<  std::endl;    
+
+    if(myDeck[20].getCardColor() == 0)
+        strColor = "Black";
+    if(myDeck[20].getCardColor() == 1)
+        strColor = "Red";
+
+    switch (myDeck[20].getCardSuit()){
+        case CLUBS:
+            strSuit = "Clubs";
+            break;
+        case DIAMONDS:
+            strSuit = "Diamond";
+            break;
+        case HEARTS:
+            strSuit = "Hearts";
+            break;
+        case SPADES:
+            strSuit = "Spades";
+            break;
+    }
+
+    std::cout<<"Card rank: " << myDeck[20].getCardRank() << std::endl;
+    std::cout<<"Card suit: " << strSuit << std::endl;
+    std::cout<<"Card color: "<< strColor <<  std::endl;    
+
+    if(myDeck[27].getCardColor() == 0)
+        strColor = "Black";
+    if(myDeck[27].getCardColor() == 1)
+        strColor = "Red";
+
+    switch (myDeck[27].getCardSuit()){
+        case CLUBS:
+            strSuit = "Clubs";
+            break;
+        case DIAMONDS:
+            strSuit = "Diamond";
+            break;
+        case HEARTS:
+            strSuit = "Hearts";
+            break;
+        case SPADES:
+            strSuit = "Spades";
+            break;
+    }
+
+    std::cout<<"Card rank: " << myDeck[27].getCardRank() << std::endl;
+    std::cout<<"Card suit: " << strSuit << std::endl;
+    std::cout<<"Card color: "<< strColor <<  std::endl;    
+
+
+
+    // Put card below the lower rank card
+    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(myDeck[2].getCardSprite().getGlobalBounds()))
+    {
+        std::cout <<"card 0 intersect with card 2"<<std::endl;
+        if(myDeck[0].getCardRank() < myDeck[2].getCardRank()){
+            float new_X, new_Y;
+            new_X = myDeck[2].getCardSprite().getPosition().x;
+            new_Y = myDeck[2].getCardSprite().getPosition().y;
+            myDeck[0].setCardPosition(new_X, new_Y + TABLE_OFFSET_POS_Y); 
+        }
+
+    }
+
+    // Put card below the lower rank card
+    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(myDeck[5].getCardSprite().getGlobalBounds()))
+    {
+        if(myDeck[0].getCardRank() < myDeck[5].getCardRank()){
+            float new_X, new_Y;
+            new_X = myDeck[5].getCardSprite().getPosition().x;
+            new_Y = myDeck[5].getCardSprite().getPosition().y;
+            myDeck[0].getCardSprite().setPosition(new_X, new_Y + TABLE_OFFSET_POS_Y);
+        }
+
+    }
+
+    // Put card below the lower rank card
+    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(myDeck[9].getCardSprite().getGlobalBounds()))
+    {
+        if(myDeck[0].getCardRank() < myDeck[5].getCardRank()){
+            float new_X, new_Y;
+            new_X = myDeck[9].getCardSprite().getPosition().x;
+            new_Y = myDeck[9].getCardSprite().getPosition().y;
+            myDeck[0].getCardSprite().setPosition(new_X, new_Y + TABLE_OFFSET_POS_Y);
+        }
+
+    }
     
+
+
+
+//    myDeck[0].getCardSprite().setPosition(700.0, 20.0);
+*/
+
+    // check and update card base on its parent 
+    /*   
+    for (int j = 0; j < TABLE_NUM_COL; j++){
+        for(int i = 0; i < j + 1; i++){
+            
+            if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[i+1].getCardSprite().getGlobalBounds()) && myDeck[i].getIsFaceUp()){
+                if(myDeck[i].getCardRank() < myDeck[i+1].getCardRank()){
+                    std::cout<<"Check if myDeck["<< i <<"] < "<<"myDeck[" << i+1 <<"]"<<std::endl;                
+                    //myDeck[i+1] is parent to myDeck[i]
+                    myDeck[i+1].setIsParent(true);
+                    myDeck[i].setIsChild(true);
+                    float xpos, ypos;
+                    xpos = myDeck[i+1].getCardSprite().getPosition().x;
+                    ypos = myDeck[i+1].getCardSprite().getPosition().y; 
+                    myDeck[i].getCardSprite().setPosition(xpos, ypos + TABLE_OFFSET_POS_Y);
+
+                }
+            }
+         }
+    }*/ 
+
+
+    for(int i = 0; i < 52; i++){
+        if(myDeck[i].getIsGetPickUp()){
+            if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[i+1].getCardSprite().getGlobalBounds()) && myDeck[i].getIsFaceUp()){
+
+                if(myDeck[i].getCardRank() < myDeck[i+1].getCardRank()){
+                    //std::cout<<"Check if myDeck["<< i <<"] < "<<"myDeck[" << i+1 <<"]"<<std::endl; 
+                     //myDeck[i+1] is parent to myDeck[i]
+                     myDeck[i+1].setIsParent(true);
+                     myDeck[i].setIsChild(true);
+                     float xpos, ypos;
+                     xpos = myDeck[i+1].getCardSprite().getPosition().x;
+                     ypos = myDeck[i+1].getCardSprite().getPosition().y;
+                     myDeck[i].getCardSprite().setPosition(xpos, ypos + TABLE_OFFSET_POS_Y); 
+
+                }
+            
+            }
+
+         }
+
+     }
+            
+        
+
+   
+
+
+
 
 }
 
@@ -460,31 +720,36 @@ void Game::CheckBuildPile()
     
     for(int i = 0; i < 4; i++)
     {
-        // if Build_Pile is empty, then Ace needs to be the first in the stack.
-        if(myDeck[i].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[i].getGlobalBounds()))
-           // myDeck[i].getCardSuit() == CLUBS)
-        {        
-            myDeck[i].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
-            m_isDragCard1 = false;
-            myDeck[i].setFaceUp();
-        }
-        
-        // Testing to put Card on myDeck[51] to the Build Pile 1, 2, 3, or 4
-        if(myDeck[51].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[i].getGlobalBounds()))
-        {        
-            myDeck[51].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
-            m_isDragCard1 = false;
-            myDeck[51].setFaceUp();
+        for(int j = 0; j < 52; j++){
+            // if Build_Pile is empty, then Ace needs to be the first in the stack.
+            if(myDeck[j].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[i].getGlobalBounds())
+                    && myDeck[j].getCardRank() == ACE )
+            {        
+                myDeck[j].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
+                m_isDragCard1 = false;
+                myDeck[j].setFaceUp();
+                myDeck[j].setIsOnBuildPile(true);
+            }
+            // if card already on the build pile the card cannot move
+
+            /*/ Testing to put Card on myDeck[51] to the Build Pile 1, 2, 3, or 4
+            if(myDeck[51].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[i].getGlobalBounds()))
+            {        
+                myDeck[51].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
+                m_isDragCard1 = false;
+                myDeck[51].setFaceUp();
+            }*/
         }
     }
+
+
 
 }
 void Game::Update()
 {
+   
     CheckBuildPile();
-
-
-
+    CheckTableCol();
 
 }
 
@@ -567,16 +832,18 @@ void Game::PutCardOnTable()
     myDeck[27].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 6)); 
     */
 
+    
     int myDeck_index = 0;
 
     for (int j = 0; j < TABLE_NUM_COL; j++){
        for(int i = 0; i < j + 1; i++){
-         myDeck[myDeck_index].getCardSprite().setPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * j), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * i));           
+         myDeck[myDeck_index].setCardPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * j), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * i)); 
+         //myDeck[myDeck_index].setFaceUp(); // for testing if card render correctly
          ++myDeck_index;
        }
-       myDeck[myDeck_index - 1].flipCard();
-       
+        myDeck[myDeck_index - 1].flipCard();      
     } 
+     
 
 }
 
@@ -608,4 +875,14 @@ void Game::Render(sf::RenderWindow &window)
     
    
 
+}
+
+void Game::setIsDiscardPileEmpty(bool isDiscardPileEmpty)
+{
+    m_isDiscardPileEmpty = isDiscardPileEmpty;
+}
+
+bool Game::getIsDiscardPileEmpty()
+{
+    return m_isDiscardPileEmpty;
 }
