@@ -398,7 +398,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 
         //When we click on the FaceDown Card on Table 6 (6 is the index of the Card On Table)         
         j = 6; //The j variable was declared above the previous for loop and is use to multiply the y-offset on the card position
-        for(int i = 20; i >= 15; i--)
+        for(int i = 27; i >= 21; i--)
         {
   
             sf::FloatRect rectBoundsPreviousCard = myDeck[i-1].getCardSprite().getGlobalBounds();                                                                   
