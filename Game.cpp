@@ -51,7 +51,7 @@ void Game::CardInit()
       m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y); 
   
       // Discard Draw Pile
-      m_BuildPilesMap[4].setPosition(150, 20);
+      m_BuildPilesMap[4].setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
   
       
       /* testing units
@@ -131,12 +131,12 @@ void Game::CardInit()
       // We put 28 cards on the tables
       PutCardOnTable();
       
-     int temp = 0; 
+     //int temp = 0; 
       // We put the remaining cards on the Draw Pile Face Down
       for(int i = 28; i < 52; i ++){
-          myDeck[i].setFaceUp(); // original facedown
-          myDeck[i].setCardPosition(DRAW_PILE_POSX + 200 + (temp * 30), DRAW_PILE_POSY+700);          
-          ++temp;
+          myDeck[i].setFaceDown(); // original facedown
+          myDeck[i].setCardPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);          
+          //++temp;
       }
       // Top of Draw Pile is myDeck[51].setFaceUp(); // For Testing
 
@@ -192,7 +192,8 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
                 if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){ 
                     
                     // If myDeck[j].getIsFaceUp == false, then we can flip the card open, so we can let the Discarded Card move freely 
-                    if(event.mouseButton.button == sf::Mouse::Left && myDeck[j].getIsFaceUp() == false)
+                    if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
+                            && myDeck[j].getIsFaceUp() == false) 
                     {
                         // if mouse is clicked inside the Rectangle myDeck[j] and the m_isDiscardPileEmpty is empty true
                         // then flip the card and set m_isDiscardPileEmpty is not empty.  
@@ -202,13 +203,22 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
                             m_isDiscardPileEmpty = false;
                             myDeck[j].setFaceUp();
                             myDeck[j].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
-                            //DiscardCard[0].setCardPosition(myDeck[j].getCardPositionX(), myDeck[j].getCardPositionY());
+
+                            DiscardCard.resize(2);
+                            DiscardCard[0] = myDeck[j];
                             break; // exit the loop when there is one card on the Discarded Pile. 
                                    // we will set the m_isDiscardPileEmpty to true 
                                    // when the DiscardCard[0] is moved to different location 
                                    // DiscardCard[0] position will follow myDeck[j] position. 
                         }
                     }
+                    
+                    if(event.type == sf::Event::MouseButtonReleased){
+                      if(event.mouseButton.button == sf::Mouse::Left){
+                        //to prevent from clicking
+                      }
+                    }
+
                 }
             
              }
@@ -216,15 +226,15 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
         }        
              
         //When we click on the FaceDown Card, it will Flip the Card Open. 
-        for(int i = 1; i < myDeck.size(); i++){
+        for(int i = 1; i < TABLE_NUM_CARDS; i++){
             sf::FloatRect rectBounds = myDeck[i].getCardSprite().getGlobalBounds();
             // check whether the moues position is within the bounds of the rectangle Card m_frontSprite/m_backSprite
             if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
                 
                 // If myDeck[j].getIsFaceUp() == false, then we can flip the card open.
                 if(event.mouseButton.button == sf::Mouse::Left && myDeck[i].getIsFaceUp() == false){
-            //         myDeck[i].flipCard();
-
+                    myDeck[i].flipCard();
+                    break;
                 }
 
             }
@@ -253,17 +263,27 @@ void Game::CheckDiscardPile()
         // std::cout<<myDeck[51].getCardPositionX()<<std::endl;
         for(int i = tempIndex; i >= Num_Deck_Draw; i--)
         {   
-            //DiscardCard is never render, it is a variable to keep track of the Discarded Pile
-            //set the DiscardCard[0] position to equal to the myDeck[i] which is a discarded card
-            DiscardCard[0].setCardPosition(myDeck[i].getCardPositionX(), myDeck[i].getCardPositionY());
-
-            if(DiscardCard[0].getCardPositionX() != 150 && DiscardCard[0].getCardPositionY() != 20)
+            for(int j = 0; j < TABLE_NUM_CARDS; j++)
             {
-                m_isDiscardPileEmpty = true;
-                //std::cout<<"DiscardCard has moved"<<std::endl;
+                //DiscardCard is never render, it is a variable to keep track of the Discarded Pile
+                if(DiscardCard.size() != 0){
+
+                    //if(DiscardCard[0].getCardPositionX() != 150 && DiscardCard[0].getCardPositionY() != 20)
+                    //m_BuildPilesMap[4] is a Discard Pile. We check if the Draw Card intersect with the Discard Pile Rectangle
+                    if(m_BuildPilesMap[4].getGlobalBounds().intersects(myDeck[i].getCardSprite().getGlobalBounds()))
+                    {
+                        m_isDiscardPileEmpty = false;
+                    }
+                    
+                    if(myDeck[i].getIsPickUp() && myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[j].getCardSprite().getGlobalBounds()) 
+                            && myDeck[j].getIsFaceUp()) 
+                    {
+                        std::cout<<"DiscardCard moved"<<std::endl;    
+                        DiscardCard.clear();
+                        m_isDiscardPileEmpty = true;
+                    }
+                }
             }
-
-
         }
     }
 
@@ -279,9 +299,10 @@ void Game::CheckDiscardPile()
                     // if myDeck[j]. is not on the BuildPile then we can make sure the cards did not stuck together otherwise it will render 
                     // the card twice
                 {
-                    std::cout<<"checking card intersect CANNOT HAVE CARDS STUCK TOGETHER"<<std::endl; 
+                    //std::cout<<"checking card intersect CANNOT HAVE CARDS STUCK TOGETHER"<<std::endl; 
                     myDeck[i].setCardPosition(myDeck[j].getCardPositionX(), myDeck[j].getCardPositionY() + TABLE_OFFSET_POS_Y);
-                    
+                    myDeck[i].setIsParent(true);
+                    myDeck[j].setIsChild(true);
                 }
 
             }
@@ -585,15 +606,6 @@ void Game::CheckBuildPile()
     m_BuildPilesMap[2].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 2), BUILD_PILE_POS_Y); 
     m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y); 
     */
-
-    /*/ if Build_Pile is empty, then Ace needs to be the first in the stack.
-    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(m_BuildPilesMap[0].getGlobalBounds()) &&
-            myDeck[0].getCardRank() == ACE)
-    {        
-        myDeck[0].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y);
-        m_isDragCard1 = false;
-        myDeck[0].setFaceUp();
-    }*/
     
     for(int i = 0; i < m_BuildPilesMap.size(); i++)
     {
@@ -752,10 +764,10 @@ void Game::PutCardOnTable()
     for (int j = 0; j < TABLE_NUM_COL; j++){
        for(int i = 0; i < j + 1 ; i++){
          myDeck[myDeck_index].setCardPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * j), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * i)); 
-         myDeck[myDeck_index].setFaceUp(); // original facedown 
+         myDeck[myDeck_index].setFaceDown(); // original facedown 
          ++myDeck_index;
        }
-      //  myDeck[myDeck_index - 1].flipCard();      
+       myDeck[myDeck_index - 1].flipCard();      
     } 
      
     CardsOnTable.resize(myDeck_index);
@@ -765,7 +777,6 @@ void Game::PutCardOnTable()
     {
     //    CardsOnTable[i] = myDeck[i];
     }
-   // std::cout<<"CardOnTable total size "<<myDeck_index<<std::endl;
 }
 
 void Game::ResetButton()

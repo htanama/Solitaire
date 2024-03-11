@@ -46,7 +46,7 @@ class Game
         
         bool m_isDiscardPileEmpty;
         int BuildPile0_Index, BuildPile1_Index, BuildPile2_Index, BuildPile3_Index;
-
+       
         // Discard Pile Position
         const int DISCARD_POSITION_X = 150;
         const int DISCARD_POSITION_Y = 20;
