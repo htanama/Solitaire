@@ -225,26 +225,8 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 
         }        
              
-        /*/When we click on the FaceDown Card, it will Flip the Card Open. 
-        for(int i = 1; i < TABLE_NUM_CARDS; i++){
-            sf::FloatRect rectBounds = myDeck[i].getCardSprite().getGlobalBounds();
-            // check whether the moues position is within the bounds of the rectangle Card m_frontSprite/m_backSprite
-            if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){
-                
-                // If myDeck[j].getIsFaceUp() == false, then we can flip the card open.
-                if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left 
-                        && myDeck[i].getIsFaceUp() == false)
-                {
-                    if(myDeck[2].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 1) 
-                            && myDeck[2].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 1))
-                        myDeck[i].flipCard();
-                    break;
-                }
-
-            }
     
-        }*/
-
+        // When we click on the FaceDown Card: 
         // if myDeck[2] card moves then myDeck[1] card on the top of myDeck[2] card  can be flip open. 
         sf::FloatRect rectBounds1 = myDeck[1].getCardSprite().getGlobalBounds();
         // check whether the moues position is within the bounds of the rectangle Card m_frontSprite/m_backSprite
@@ -301,12 +283,49 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
               }
   
           }
-        
-        /*/Flip Folded Card on Table 3 (3 is the index of the Card On Table) 
-        int j = 3;
-        for(int i = 9; i <= 6; i--)
+      
+
+          /*/ if myDeck[9] card moves then myDeck[8] card on the top of myDeck[9] card  can be flip open. 
+          sf::FloatRect rectBounds8 = myDeck[8].getCardSprite().getGlobalBounds();
+          // check whether the moues position is within the bounds of the rectangle Card m_frontSprite/m_backSprite
+          if(rectBounds8.contains(static_cast<sf::Vector2f>(mousePos)))                                                                                               
+          {
+              // If myDeck[8].getIsFaceUp() == false, then we can flip the card open.
+              if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
+                  && myDeck[8].getIsFaceUp() == false)
+              {
+                  // if myDeck[9] card move from its original position then you can flip the myDeck[8] card.
+                  if(myDeck[9].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 3)
+                      && myDeck[9].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3))
+                  {
+                      myDeck[8].flipCard();
+                  }
+              }
+          }
+             
+        // if myDeck[8] card moves then myDeck[7] card on the top of myDeck[8] card  can be flip open. 
+        sf::FloatRect rectBounds7 = myDeck[7].getCardSprite().getGlobalBounds();
+        // check whether the moues position is within the bounds of the rectangle Card m_frontSprite/m_backSprite
+        if(rectBounds7.contains(static_cast<sf::Vector2f>(mousePos)))
         {
-            
+            // If myDeck[7].getIsFaceUp() == false, then we can flip the card open.
+            if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
+                && myDeck[7].getIsFaceUp() == false)
+            {
+                // if myDeck[8] card move from its original position then you can flip the myDeck[7] card.
+                if(myDeck[8].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 3)
+                    && myDeck[8].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 2))
+                {
+                    myDeck[7].flipCard();
+                }
+            }
+        }*/
+  
+        //When we click on the FaceDown Card on Table 3 (3 is the index of the Card On Table)         
+        int j = 3; // this variable is use to multiply the y-offset on the card position
+        for(int i = 9; i >= 6; i--)
+        {
+
             sf::FloatRect rectBoundsPreviousCard = myDeck[i-1].getCardSprite().getGlobalBounds();
             
             if(rectBoundsPreviousCard.contains(static_cast<sf::Vector2f>(mousePos)))
@@ -315,38 +334,94 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
                 if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
                         && myDeck[i-1].getIsFaceUp() == false)
                 {
-                    
                     if(myDeck[i].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 3)
                             && myDeck[i].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * j))
                     {
                         myDeck[i-1].setFaceUp();
                         --j;
                     }
-
                 }
 
             }
 
-        }*/
-
-        // if myDeck[9] card moves then myDeck[8] card on the top of myDeck[9] card  can be flip open. 
-        sf::FloatRect rectBounds8 = myDeck[8].getCardSprite().getGlobalBounds();
-        // check whether the moues position is within the bounds of the rectangle Card m_frontSprite/m_backSprite
-        if(rectBounds8.contains(static_cast<sf::Vector2f>(mousePos)))
-        {
-            // If myDeck[8].getIsFaceUp() == false, then we can flip the card open.
-            if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
-                && myDeck[8].getIsFaceUp() == false)
-            {
-                // if myDeck[9] card move from its original position then you can flip the myDeck[3] card.
-                if(myDeck[9].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 3)
-                    && myDeck[9].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * 3))
-                {
-                    myDeck[8].flipCard();
-                }
-            }
         }
-           
+
+        //When we click on the FaceDown Card on Table 4 (4 is the index of the Card On Table)         
+        j = 4; //The j variable was declared above the previous for loop and is use to multiply the y-offset on the card position
+        for(int i = 14; i >= 10; i--)
+        {
+  
+            sf::FloatRect rectBoundsPreviousCard = myDeck[i-1].getCardSprite().getGlobalBounds();
+              
+            if(rectBoundsPreviousCard.contains(static_cast<sf::Vector2f>(mousePos)))
+            {
+            
+                if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
+                    && myDeck[i-1].getIsFaceUp() == false)
+                {
+                    if(myDeck[i].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 4)
+                        && myDeck[i].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * j))
+                    {
+                        myDeck[i-1].setFaceUp();
+                        --j;
+                    }
+                }
+  
+             }
+  
+          }
+
+        //When we click on the FaceDown Card on Table 5 (5 is the index of the Card On Table)         
+        j = 5; //The j variable was declared above the previous for loop and is use to multiply the y-offset on the card position
+        for(int i = 20; i >= 15; i--)
+        {
+
+            sf::FloatRect rectBoundsPreviousCard = myDeck[i-1].getCardSprite().getGlobalBounds();
+            
+            if(rectBoundsPreviousCard.contains(static_cast<sf::Vector2f>(mousePos)))
+            {
+          
+                if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
+                    && myDeck[i-1].getIsFaceUp() == false)
+                {
+                    if(myDeck[i].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5)
+                        && myDeck[i].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * j))
+                    {
+                        myDeck[i-1].setFaceUp();
+                        --j;
+                    }
+                }
+
+            }
+
+        }
+
+        //When we click on the FaceDown Card on Table 6 (6 is the index of the Card On Table)         
+        j = 6; //The j variable was declared above the previous for loop and is use to multiply the y-offset on the card position
+        for(int i = 20; i >= 15; i--)
+        {
+  
+            sf::FloatRect rectBoundsPreviousCard = myDeck[i-1].getCardSprite().getGlobalBounds();                                                                   
+             
+            if(rectBoundsPreviousCard.contains(static_cast<sf::Vector2f>(mousePos)))
+            {
+            
+                if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
+                    && myDeck[i-1].getIsFaceUp() == false)
+                {
+                    if(myDeck[i].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5)
+                        && myDeck[i].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * j))
+                     {
+                        myDeck[i-1].setFaceUp();
+                        --j;
+                     }
+                }
+  
+            }
+  
+        }
+  
+
 
 
 
