@@ -47,7 +47,7 @@ bool Card::getIsFaceUp()
     return m_isFaceUp;
 }
 
-bool Card::getIsGetPickUp()
+bool Card::getIsPickUp()
 {
     return m_isPickUp;
 }

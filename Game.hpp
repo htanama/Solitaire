@@ -16,10 +16,10 @@ class Game
         void ProcessInput(sf::RenderWindow &window, sf::Event event);
         void Update();
         void Render(sf::RenderWindow &window);
-        
+        void ResetButton();
         void PutCardOnTable();
         void CheckBuildPile();
-        void CheckTableCol();
+        void CheckCardsOnTable();
         void CheckDiscardPile();
         void setIsDiscardPileEmpty(bool);
         bool getIsDiscardPileEmpty();
@@ -64,13 +64,15 @@ class Game
         const int TABLE_COL_POS_X = 20;
         const int TABLE_COL_POS_Y = 200;
         const int TABLE_OFFSET_POS_X = 130;
-        const int TABLE_OFFSET_POS_Y = 30;
+        const int TABLE_OFFSET_POS_Y = 40;
         const int TABLE_NUM_COL = 7;
         const int TABLE_NUM_CARDS = 28; // there are 28 cards on table but index start with zero
         
 
         sf::Texture m_pilesTexture;
+        sf::Texture m_resetTexture;
         sf::Sprite m_pilesSprite;
+        sf::Sprite m_resetButton;
         sf::Vector2f m_dragOffsetCard;
 
 
@@ -78,7 +80,7 @@ class Game
         
         Card m_card;
         std::vector<Card> myDeck,tempDeck, BuildPile0, BuildPile1, BuildPile2, BuildPile3;
-        std::vector<Card> DiscardCard;
+        std::vector<Card> DiscardCard, CardsOnTable;
         
         
         

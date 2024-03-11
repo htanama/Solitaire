@@ -50,7 +50,7 @@ class Card
         void cardProcessInput(sf::RenderWindow& window, sf::Event& event);
         void flipCard();
         bool getIsFaceUp();
-        bool getIsGetPickUp();
+        bool getIsPickUp();
         bool getIsParent();
         void setIsParent(bool);
         void setIsChild(bool);
