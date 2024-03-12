@@ -8,7 +8,7 @@
 #include <iostream>
 
 Card::Card()
-:m_isFaceUp(false),m_isParent(false), m_isPickUp(false), m_isChild(false), m_isOnBuildPile(false)
+:m_isFaceUp(false),m_isParent(false), m_isPickUp(false), m_isChild(false), m_isOnBuildPile(false), m_isOnDiscardPile(false)
 {   
     // Get the spritesheet from file  and put it on the sf::Texture m_spriteSheetTexture
     if(!m_spriteSheetTexture.loadFromFile("./assets/card-deck.png"))
@@ -50,6 +50,16 @@ bool Card::getIsFaceUp()
 bool Card::getIsPickUp()
 {
     return m_isPickUp;
+}
+
+bool Card::getIsCardOnDiscardPile()
+{
+    return m_isOnDiscardPile;
+}
+
+void Card::setIsCardOnDiscardPile(bool isCardOnDiscardPile)
+{
+    m_isOnDiscardPile = isCardOnDiscardPile;
 }
 
 bool Card::getIsParent() 

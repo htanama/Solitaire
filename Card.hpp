@@ -19,6 +19,8 @@ class Card
         bool m_isParent;
         bool m_isChild;
         bool m_isOnBuildPile;
+        bool m_isOnDiscardPile;
+
         // const int CARD_WIDTH = 98;
         // const  int CARD_HEIGHT = 153;
         
@@ -39,6 +41,8 @@ class Card
     public: 
         Card();
         ~Card();
+        bool getIsCardOnDiscardPile();
+        void setIsCardOnDiscardPile(bool);
         void setFaceDown();
         void setFaceUp();
         void setCardColor(int color);

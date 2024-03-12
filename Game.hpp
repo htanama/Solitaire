@@ -1,6 +1,7 @@
 #ifndef GAME_HPP 
 #define GAME_HPP 
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window.hpp>
 #include "Card.hpp"
 #include <SFML/Window/Keyboard.hpp>
@@ -26,7 +27,7 @@ class Game
         
 
     private:
-        bool m_isDragCard1;
+        bool m_isDragCard1, m_getOneCardOnly, m_isDrawDeckEmpty;
         // m_isDragCard2, m_isDragCard3,
         // m_isDragCard4, m_isDragCard5, m_isDragCard6, m_isDragCard7, m_isDragDiscardPile;
 
@@ -71,6 +72,7 @@ class Game
 
         sf::Texture m_pilesTexture;
         sf::Texture m_resetTexture;
+        sf::Sprite m_DrawDeckSprite;
         sf::Sprite m_pilesSprite;
         sf::Sprite m_resetButton;
         sf::Vector2f m_dragOffsetCard;

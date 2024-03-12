@@ -13,7 +13,8 @@
 #include <vector>
 
 
-Game::Game():myDeck(52), tempDeck(52), m_isDragCard1(false)
+Game::Game():myDeck(52), tempDeck(52), m_isDragCard1(false), m_getOneCardOnly(false),
+    m_isDrawDeckEmpty(false)
 {
     CardInit();
     m_isDiscardPileEmpty = true;
@@ -53,6 +54,8 @@ void Game::CardInit()
       // Discard Draw Pile
       m_BuildPilesMap[4].setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
   
+      m_DrawDeckSprite.setTexture(m_pilesTexture);
+      m_DrawDeckSprite.setPosition(DRAW_PILE_POSX, DRAW_PILE_POSX); 
       
       /* testing units
       sf::IntRect srcRect1(CARD_WIDTH*ACE, CARD_HEIGHT*CLUBS, CARD_WIDTH, CARD_HEIGHT);
@@ -183,8 +186,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 
         // Draw Cards from Deck
         if(m_isDiscardPileEmpty)
-        {   
-            DiscardCard.resize(1);
+        {  
             for(int j = 51; j >= 28; j--)
             {
                 sf::FloatRect rectBounds = myDeck[j].getCardSprite().getGlobalBounds();  
@@ -210,6 +212,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
                                    // we will set the m_isDiscardPileEmpty to true 
                                    // when the DiscardCard[0] is moved to different location 
                                    // DiscardCard[0] position will follow myDeck[j] position. 
+                        
                         }
                     }
                     
@@ -222,10 +225,77 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
                 }
             
              }
-
         }        
-             
-    
+        
+
+        /*/ Draw Cards from Deck one by one 
+        // Pick up the first card from the deck and put it on the Discarded Pile
+        // when discard_index = reach the end put the discard card back to the draw card pile.           
+        int discard_index = 51;
+        for(int i = 28; i < 52; i++) 
+        {
+            if(event.type == sf::Event::MouseButtonPressed)
+            {
+                if(event.mouseButton.button == sf::Mouse::Left)
+                {
+                    sf::FloatRect rectBounds = myDeck[discard_index].getCardSprite().getGlobalBounds(); 
+                    if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos)))
+                    {
+                        if(m_isDrawDeckEmpty == false && m_getOneCardOnly == false
+                            && myDeck[discard_index].getIsFaceUp() == false  && myDeck[discard_index].getIsCardOnDiscardPile() == false)
+                        {
+                            myDeck[discard_index].setFaceUp();
+                            myDeck[discard_index].setIsCardOnDiscardPile(true);
+                            myDeck[discard_index].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+                            m_getOneCardOnly = true;
+                        }
+
+                    }
+
+                    if(discard_index >= 28)
+                    {
+                        discard_index--;
+                    }
+                    
+                }
+            }
+
+        }
+        m_getOneCardOnly = false;
+
+        // if all Deck Draw Card FaceUp == true, then FaceDown all the Deck Draw Card when we click the DrawDeckSprite
+        int counterDrawDeckCard = 0;
+        for(int i = 51; i >= 28; i --)
+        {
+            if(myDeck[i].getIsFaceUp())
+            {
+                ++counterDrawDeckCard;
+            }
+            if(counterDrawDeckCard == 24)
+            {
+                m_isDrawDeckEmpty = true;
+            }
+        }
+
+        //Putting Back the Deck into the DrawDeck Pile When All the DrawDeck Cards are Open
+        sf::FloatRect rectBoundsDrawDeckSprite = m_DrawDeckSprite.getGlobalBounds();               
+        if(rectBoundsDrawDeckSprite.contains(static_cast<sf::Vector2f>(mousePos)))
+        {
+            if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
+                && m_isDrawDeckEmpty == true)
+            {
+                for(int i = 28; i < 52; i++)
+                {
+                    myDeck[i].setFaceDown();
+                    myDeck[discard_index].setIsCardOnDiscardPile(false); 
+                    myDeck[i].getCardSprite().setPosition(DRAW_PILE_POSX, DRAW_PILE_POSY); 
+                }
+                m_isDrawDeckEmpty = false;
+
+            }
+        }*/ 
+        
+
         // When we click on the FaceDown Card: 
         // if myDeck[2] card moves then myDeck[1] card on the top of myDeck[2] card  can be flip open. 
         sf::FloatRect rectBounds1 = myDeck[1].getCardSprite().getGlobalBounds();
@@ -980,10 +1050,19 @@ void Game::Render(sf::RenderWindow &window)
         window.draw(myDeck[i].getCardSprite());
     }
 
+    // Draw Discard Pile
+    for(int i = 51; i > 27; i--)
+    {
+        window.draw(myDeck[i].getCardSprite()); 
+    }
+
     // Draw Card on Table
     for(int i = 0; i < 28; i++){
         window.draw(myDeck[i].getCardSprite());
     }
+    
+    // Render Draw Card Pile Rectangle
+    window.draw(m_DrawDeckSprite);
 
     // Rendering Card on the BuildPile in the correct order to display the last card (Descending Order)  
     if(BuildPile0_Index >= 1){
