@@ -27,121 +27,128 @@ Game::~Game()
 
 void Game::CardInit()
 {
-      if(!m_pilesTexture.loadFromFile("./assets/FinalRectangle.png")){
-          std::cerr<<"Error Loading FinalRectangle.png!\n";
-          return;
-      }
-      m_pilesSprite.setTexture(m_pilesTexture);                                                                                         
+    m_isDrawDeckEmpty = false;
+    m_isDragCard1 = false;
+    m_getOneCardOnly = false;
+    m_isDiscardPileEmpty = true;
+    m_isRenderingDrawDeck = false;
 
-      BuildPile0.resize(14);
-      BuildPile1.resize(14);
-      BuildPile2.resize(14);
-      BuildPile3.resize(14);
-      
-      BuildPile0_Index = 1;
-      BuildPile1_Index = 1;
-      BuildPile2_Index = 1;
-      BuildPile3_Index = 1;  
+    if(!m_pilesTexture.loadFromFile("./assets/FinalRectangle.png")){
+        std::cerr<<"Error Loading FinalRectangle.png!\n";
+        return;
+    }
+    m_pilesSprite.setTexture(m_pilesTexture);                                                                                         
+    
+    BuildPile0.resize(14);
+    BuildPile1.resize(14);
+    BuildPile2.resize(14);
+    BuildPile3.resize(14);
+  
+    BuildPile0_Index = 1;
+    BuildPile1_Index = 1;
+    BuildPile2_Index = 1;
+    BuildPile3_Index = 1;  
 
-      for(int i = 0; i < 5; i++){
-          m_BuildPilesMap[i] = m_pilesSprite;
-      }
-      m_BuildPilesMap[0].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y); 
-      m_BuildPilesMap[1].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 1), BUILD_PILE_POS_Y); 
-      m_BuildPilesMap[2].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 2), BUILD_PILE_POS_Y); 
-      m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y); 
+    for(int i = 0; i < 4; i++){
+        m_BuildPilesMap[i].setTexture(m_pilesTexture);
+    }
+    m_BuildPilesMap[0].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[1].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 1), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[2].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 2), BUILD_PILE_POS_Y); 
+    m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y); 
+
+    // Discard Draw Pile Sprite
+    m_DiscardPileSprite.setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);  
+    m_DiscardPileSprite.setTexture(m_pilesTexture);
+
+    // Draw Deck Pile Sprite
+    m_DrawDeckSprite.setTexture(m_pilesTexture);
+    m_DrawDeckSprite.setPosition(DRAW_PILE_POSX, DRAW_PILE_POSX); 
   
-      // Discard Draw Pile
-      m_BuildPilesMap[4].setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
-  
-      m_DrawDeckSprite.setTexture(m_pilesTexture);
-      m_DrawDeckSprite.setPosition(DRAW_PILE_POSX, DRAW_PILE_POSX); 
+    /* testing units
+    sf::IntRect srcRect1(CARD_WIDTH*ACE, CARD_HEIGHT*CLUBS, CARD_WIDTH, CARD_HEIGHT);
+    myDeck[0].setCardFrontSprite(srcRect1);
+    myDeck[0].setFaceUp();
+    myDeck[0].setCardPosition(CARD_WIDTH*1, CARD_HEIGHT*0);
+    sf::IntRect srcRect2(CARD_WIDTH*TWO, CARD_HEIGHT*HEARTS, CARD_WIDTH, CARD_HEIGHT);
+    myDeck[1].setCardFrontSprite(srcRect2);    
+    myDeck[1].setFaceUp();
+    myDeck[1].setCardPosition(200, 0);
+    */
+    int rank = 1;
+    int suit = 0;
+
+    // Assigning each card to texture in ordered
+    for(int i = 0; i < 52; ++i){
       
-      /* testing units
-      sf::IntRect srcRect1(CARD_WIDTH*ACE, CARD_HEIGHT*CLUBS, CARD_WIDTH, CARD_HEIGHT);
-      myDeck[0].setCardFrontSprite(srcRect1);
-      myDeck[0].setFaceUp();
-      myDeck[0].setCardPosition(CARD_WIDTH*1, CARD_HEIGHT*0);
-      sf::IntRect srcRect2(CARD_WIDTH*TWO, CARD_HEIGHT*HEARTS, CARD_WIDTH, CARD_HEIGHT);
-      myDeck[1].setCardFrontSprite(srcRect2);    
-      myDeck[1].setFaceUp();
-      myDeck[1].setCardPosition(200, 0);
-      */
-      int rank = 1;
-      int suit = 0;
-  
-      // Assigning each card to texture in ordered
-      for(int i = 0; i < 52; ++i){
-          
-          if(suit >= 4) suit = 0;
-          if(rank >= 14) rank = 1;
-         
-          tempDeck[i].setCardFrontSprite(sf::IntRect((i%13)*CARD_WIDTH, (i/13)*CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT));
-          //myDeck[i].setCardFrontSprite(sf::IntRect((i%13)*CARD_WIDTH, (i/13)*CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT));
-                 
-          tempDeck[i].setCardRank(rank);
-          tempDeck[i].setCardSuit(suit);   
-          
-          //myDeck[i].setCardRank(rank);
-          //myDeck[i].setCardSuit(suit);
-  
-          // set color of the suit base on the Suit - enum Suit {CLUBS, DIAMONDS, HEARTS, SPADES};   
-          if(suit == 1)
-              tempDeck[i].setCardColor(1); 
-              //myDeck[i].setCardColor(1);
-          if(suit == 2)
-              tempDeck[i].setCardColor(1);
-              //myDeck[i].setCardColor(1);
-          if(suit == 0)
-              tempDeck[i].setCardColor(0);
-              //myDeck[i].setCardColor(0);
-          if(suit == 3)
-              tempDeck[i].setCardColor(0);
-              //myDeck[i].setCardColor(0);
-  
-          ++rank;
-          if(i == 13) ++suit;
-          if(i == 26) ++suit;
-          if(i == 39) ++suit;
-          
-          /*/ FOR TESTING
-          tempDeck[i].setFaceUp();
-          tempDeck[i].getCardSprite().setPosition(20+(20*i), 200);
-          myDeck[i].setFaceUp();
-          myDeck[i].getCardSprite().setPosition(20+(20*i), 400);
-          */
+        if(suit >= 4) suit = 0;
+        if(rank >= 14) rank = 1;
      
-      }
+        tempDeck[i].setCardFrontSprite(sf::IntRect((i%13)*CARD_WIDTH, (i/13)*CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT));
+        //myDeck[i].setCardFrontSprite(sf::IntRect((i%13)*CARD_WIDTH, (i/13)*CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT));
+             
+        tempDeck[i].setCardRank(rank);
+        tempDeck[i].setCardSuit(suit);   
       
-        
-      // Create a random device
-      std::random_device rd;
-      // Initialize a generator
-      std::mt19937 g(rd());
-  
-      //Suffle the array
-      std::shuffle(std::begin(m_cardIndex), std::end(m_cardIndex), g);
-  
-      // copy randomize cards from tempDeck vector to myDeck vector using indices assignment    
-      for(int i = 0; i < 52; i++){     
-          myDeck[i] = tempDeck[m_cardIndex[i]];
-          //myDeck[i] = tempDeck[i];
-   
-      }
-      std::cout<<std::endl;
-  
-  
-      // We put 28 cards on the tables
-      PutCardOnTable();
+        //myDeck[i].setCardRank(rank);
+        //myDeck[i].setCardSuit(suit);
+
+        // set color of the suit base on the Suit - enum Suit {CLUBS, DIAMONDS, HEARTS, SPADES};   
+        if(suit == 1)
+            tempDeck[i].setCardColor(1); 
+            //myDeck[i].setCardColor(1);
+        if(suit == 2)
+            tempDeck[i].setCardColor(1);
+            //myDeck[i].setCardColor(1);
+        if(suit == 0)
+            tempDeck[i].setCardColor(0);
+            //myDeck[i].setCardColor(0);
+        if(suit == 3)
+            tempDeck[i].setCardColor(0);
+            //myDeck[i].setCardColor(0);
+
+        ++rank;
+        if(i == 13) ++suit;
+        if(i == 26) ++suit;
+        if(i == 39) ++suit;
       
+        /*/ FOR TESTING
+        tempDeck[i].setFaceUp();
+        tempDeck[i].getCardSprite().setPosition(20+(20*i), 200);
+        myDeck[i].setFaceUp();
+        myDeck[i].getCardSprite().setPosition(20+(20*i), 400);
+        */ 
+    }
+    
+    // Create a random device
+    std::random_device rd;
+    // Initialize a generator
+    std::mt19937 g(rd());
+
+    //Suffle the array
+    std::shuffle(std::begin(m_cardIndex), std::end(m_cardIndex), g);
+
+    // copy randomize cards from tempDeck vector to myDeck vector using indices assignment    
+    for(int i = 0; i < 52; i++){     
+        myDeck[i] = tempDeck[m_cardIndex[i]];
+        //myDeck[i] = tempDeck[i];
+
+    }
+    
+    std::cout<<std::endl;
+
+
+    // We put 28 cards on the tables
+    PutCardOnTable();
+  
      //int temp = 0; 
-      // We put the remaining cards on the Draw Pile Face Down
-      for(int i = 28; i < 52; i ++){
-          myDeck[i].setFaceDown(); // original facedown
-          myDeck[i].setCardPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);          
-          //++temp;
-      }
-      // Top of Draw Pile is myDeck[51].setFaceUp(); // For Testing
+    // We put the remaining cards on the Draw Pile Face Down
+    for(int i = 28; i < 52; i ++){
+        myDeck[i].setFaceDown(); // original facedown
+        myDeck[i].setCardPosition(DRAW_PILE_POSX, DRAW_PILE_POSY);          
+        //++temp;
+    }
+    // Top of Draw Pile is myDeck[51].setFaceUp(); // For Testing
 
 
     if(!m_resetTexture.loadFromFile("./assets/reset.png")){ 
@@ -152,7 +159,7 @@ void Game::CardInit()
     m_resetButton.setTexture(m_resetTexture);
     m_resetButton.setPosition(1000.0, 800.0);
 }
-
+ 
 
 void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
 {   
@@ -167,10 +174,13 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
         if(event.type == sf::Event::Closed)
             window.close();
 
-
-        for(int i = 0; i < 52; i++){         
-            myDeck[i].cardProcessInput(window,event);
-        
+        // Iterate through all the DrawDeck Card if the card is being pick up
+        for(int i = 0; i < 52; i++){       
+            myDeck[i].cardProcessInput(window,event); 
+            // if the myDeck[i] is pick up, then break from the loop so it will not pick up all the cards at the same time
+            if (myDeck[i].getIsPickUp()== true) {
+                break;
+            }
         }
 
         // check whether the moues position is within the bounds of the rectangle ResetButton
@@ -184,117 +194,67 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
             }
         }
 
-        // Draw Cards from Deck
-        if(m_isDiscardPileEmpty)
-        {  
-            for(int j = 51; j >= 28; j--)
-            {
-                sf::FloatRect rectBounds = myDeck[j].getCardSprite().getGlobalBounds();  
-                // check whether the moues position is within the bounds of the rectangle Card m_frontSprite   
-                if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos))){ 
-                    
-                    // If myDeck[j].getIsFaceUp == false, then we can flip the card open, so we can let the Discarded Card move freely 
-                    if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
-                            && myDeck[j].getIsFaceUp() == false) 
-                    {
-                        // if mouse is clicked inside the Rectangle myDeck[j] and the m_isDiscardPileEmpty is empty true
-                        // then flip the card and set m_isDiscardPileEmpty is not empty.  
-                        if(myDeck[j].getCardSprite().getGlobalBounds().contains(mousePos) && m_isDiscardPileEmpty == true && 
-                            myDeck[j].getIsOnBuildPile() == false)
-                        { 
-                            m_isDiscardPileEmpty = false;
-                            myDeck[j].setFaceUp();
-                            myDeck[j].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
-
-                            DiscardCard.resize(2);
-                            DiscardCard[0] = myDeck[j];
-                            break; // exit the loop when there is one card on the Discarded Pile. 
-                                   // we will set the m_isDiscardPileEmpty to true 
-                                   // when the DiscardCard[0] is moved to different location 
-                                   // DiscardCard[0] position will follow myDeck[j] position. 
-                        
-                        }
-                    }
-                    
-                    if(event.type == sf::Event::MouseButtonReleased){
-                      if(event.mouseButton.button == sf::Mouse::Left){
-                        //to prevent from clicking
-                      }
-                    }
-
-                }
-            
-             }
-        }        
         
-
-        /*/ Draw Cards from Deck one by one 
+        
+        // Draw Cards from Deck one by one 
         // Pick up the first card from the deck and put it on the Discarded Pile
         // when discard_index = reach the end put the discard card back to the draw card pile.           
-        int discard_index = 51;
-        for(int i = 28; i < 52; i++) 
+        
+        int last_index; 
+        for(int i = 51; i >= 28; i--) 
         {
             if(event.type == sf::Event::MouseButtonPressed)
             {
                 if(event.mouseButton.button == sf::Mouse::Left)
                 {
-                    sf::FloatRect rectBounds = myDeck[discard_index].getCardSprite().getGlobalBounds(); 
+                    sf::FloatRect rectBounds = myDeck[i].getCardSprite().getGlobalBounds(); 
+                    
                     if(rectBounds.contains(static_cast<sf::Vector2f>(mousePos)))
                     {
                         if(m_isDrawDeckEmpty == false && m_getOneCardOnly == false
-                            && myDeck[discard_index].getIsFaceUp() == false  && myDeck[discard_index].getIsCardOnDiscardPile() == false)
+                            && myDeck[i].getIsFaceUp() == false  && myDeck[i].getIsCardOnDiscardPile() == false)
                         {
-                            myDeck[discard_index].setFaceUp();
-                            myDeck[discard_index].setIsCardOnDiscardPile(true);
-                            myDeck[discard_index].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
+                            myDeck[i].setFaceUp();
+                            myDeck[i].setIsCardOnDiscardPile(true);
+                            myDeck[i].getCardSprite().setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);
                             m_getOneCardOnly = true;
                         }
 
                     }
-
-                    if(discard_index >= 28)
-                    {
-                        discard_index--;
-                    }
                     
                 }
             }
+            last_index = i;
 
         }
         m_getOneCardOnly = false;
 
-        // if all Deck Draw Card FaceUp == true, then FaceDown all the Deck Draw Card when we click the DrawDeckSprite
-        int counterDrawDeckCard = 0;
-        for(int i = 51; i >= 28; i --)
-        {
-            if(myDeck[i].getIsFaceUp())
-            {
-                ++counterDrawDeckCard;
-            }
-            if(counterDrawDeckCard == 24)
-            {
-                m_isDrawDeckEmpty = true;
-            }
-        }
+        // if we open the last myDeck card then the DrawDeck is empty
+        // This will be a bug when myDeck[28] is move to Build Pile the DrawDeck will assume it is empty but it is not. 
+        if(myDeck[28].getIsFaceUp())
+            m_isDrawDeckEmpty = true;
 
-        //Putting Back the Deck into the DrawDeck Pile When All the DrawDeck Cards are Open
-        sf::FloatRect rectBoundsDrawDeckSprite = m_DrawDeckSprite.getGlobalBounds();               
-        if(rectBoundsDrawDeckSprite.contains(static_cast<sf::Vector2f>(mousePos)))
+
+        if(m_isRenderingDrawDeck)
         {
-            if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
-                && m_isDrawDeckEmpty == true)
+            //Putting Back the Deck into the DrawDeck Pile When All the DrawDeck Cards are Open
+            sf::FloatRect rectBoundsDrawDeckSprite = m_DrawDeckSprite.getGlobalBounds();               
+            if(rectBoundsDrawDeckSprite.contains(static_cast<sf::Vector2f>(mousePos)))
             {
-                for(int i = 28; i < 52; i++)
+                if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
+                    && m_DrawDeckSprite.getGlobalBounds().contains(mousePos))
                 {
-                    myDeck[i].setFaceDown();
-                    myDeck[discard_index].setIsCardOnDiscardPile(false); 
-                    myDeck[i].getCardSprite().setPosition(DRAW_PILE_POSX, DRAW_PILE_POSY); 
+                    for(int i = 28; i < 52; i++)
+                    {
+                        myDeck[i].setFaceDown();
+                        myDeck[i].setIsCardOnDiscardPile(false); 
+                        myDeck[i].getCardSprite().setPosition(DRAW_PILE_POSX, DRAW_PILE_POSY); 
+                    }
+                    m_isDrawDeckEmpty = false;
+                    m_isRenderingDrawDeck = false;
                 }
-                m_isDrawDeckEmpty = false;
-
-            }
-        }*/ 
-        
+            } 
+        }
 
         // When we click on the FaceDown Card: 
         // if myDeck[2] card moves then myDeck[1] card on the top of myDeck[2] card  can be flip open. 
@@ -479,7 +439,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
                 if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left
                     && myDeck[i-1].getIsFaceUp() == false)
                 {
-                    if(myDeck[i].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 5)
+                    if(myDeck[i].getCardSprite().getPosition().x != TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * 6)
                         && myDeck[i].getCardSprite().getPosition().y != TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * j))
                      {
                         myDeck[i-1].setFaceUp();
@@ -523,8 +483,8 @@ void Game::CheckDiscardPile()
                 if(DiscardCard.size() != 0){
 
                     //if(DiscardCard[0].getCardPositionX() != 150 && DiscardCard[0].getCardPositionY() != 20)
-                    //m_BuildPilesMap[4] is a Discard Pile. We check if the Draw Card intersect with the Discard Pile Rectangle
-                    if(m_BuildPilesMap[4].getGlobalBounds().intersects(myDeck[i].getCardSprite().getGlobalBounds()))
+                    //We check if the Draw Card intersect with the Discard Pile Sprite
+                    if(m_DiscardPileSprite.getGlobalBounds().intersects(myDeck[i].getCardSprite().getGlobalBounds()))
                     {
                         m_isDiscardPileEmpty = false;
                     }
@@ -835,14 +795,9 @@ void Game::CheckCardsOnTable()
          }
 
      }*/
-            
-        
+                    
 
    
-
-
-
-
 }
 
 void Game::CheckBuildPile()
@@ -1038,12 +993,20 @@ void Game::ResetButton()
 
 void Game::Render(sf::RenderWindow &window)
 {
+
+    // Render Draw Card Pile Rectangle 
+    if(m_isDrawDeckEmpty == true){
+        window.draw(m_DrawDeckSprite); 
+        m_isRenderingDrawDeck = true;
+    }
+
     for(int i = 0; i < 4; i++){
         window.draw(m_BuildPilesMap[i]);
     }
 
     // Discard Pile Next to the Draw Pile
-    window.draw(m_BuildPilesMap[4]); 
+    if(m_isDiscardPileEmpty == true)
+        window.draw(m_DiscardPileSprite); 
 
     // Draw Pile
     for(int i = 28; i < 52; i++){
@@ -1061,8 +1024,6 @@ void Game::Render(sf::RenderWindow &window)
         window.draw(myDeck[i].getCardSprite());
     }
     
-    // Render Draw Card Pile Rectangle
-    window.draw(m_DrawDeckSprite);
 
     // Rendering Card on the BuildPile in the correct order to display the last card (Descending Order)  
     if(BuildPile0_Index >= 1){

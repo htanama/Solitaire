@@ -164,6 +164,8 @@ void Card::cardProcessInput(sf::RenderWindow& window, sf::Event &event)
 
     // check whether the moues position is within the bounds of the rectangle Card m_frontSprite
     if(rectBoundsFrontCard.contains(static_cast<sf::Vector2f>(mousePos))){ 
+       
+        // left mouse button was just pressed
         if(event.type == sf::Event::MouseButtonPressed && getIsFaceUp() == true){
             // check if mouse click inside the card
             if(m_frontSprite.getGlobalBounds().contains(mousePos)){
