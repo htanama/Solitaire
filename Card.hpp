@@ -55,6 +55,7 @@ class Card
         void flipCard();
         bool getIsFaceUp();
         bool getIsPickUp();
+        void setIsPickUp(bool pickup);
         bool getIsParent();
         void setIsParent(bool);
         void setIsChild(bool);

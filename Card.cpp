@@ -52,6 +52,11 @@ bool Card::getIsPickUp()
     return m_isPickUp;
 }
 
+void Card::setIsPickUp(bool pickup)
+{
+    m_isPickUp = pickup;
+}
+
 bool Card::getIsCardOnDiscardPile()
 {
     return m_isOnDiscardPile;

@@ -1,5 +1,6 @@
 #include "Game.hpp"
 #include "Card.hpp"
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -14,10 +15,16 @@
 
 
 Game::Game():myDeck(52), tempDeck(52), m_isDragCard1(false), m_getOneCardOnly(false),
-    m_isDrawDeckEmpty(false)
+    m_isDrawDeckEmpty(false), m_isPlayerWin(false)
 {
     CardInit();
     m_isDiscardPileEmpty = true;
+
+    if (!m_font.loadFromFile("./assets/ariblk.ttf"))
+    {
+         std::cerr<<"Error Loading FinalRectangle.png!\n";   
+        return; 
+    }
 }
 
 Game::~Game()
@@ -27,11 +34,17 @@ Game::~Game()
 
 void Game::CardInit()
 {
+    m_isPlayerWin = false;
     m_isDrawDeckEmpty = false;
     m_isDragCard1 = false;
     m_getOneCardOnly = false;
     m_isDiscardPileEmpty = true;
     m_isRenderingDrawDeck = false;
+    
+    if(!m_buildPileTexture.loadFromFile("./assets/card-deck.png")){
+        std::cerr<<"Error Loading FinalRectangle.png!\n";
+        return;
+    }
 
     if(!m_pilesTexture.loadFromFile("./assets/FinalRectangle.png")){
         std::cerr<<"Error Loading FinalRectangle.png!\n";
@@ -50,12 +63,19 @@ void Game::CardInit()
     BuildPile3_Index = 1;  
 
     for(int i = 0; i < 4; i++){
-        m_BuildPilesMap[i].setTexture(m_pilesTexture);
+        m_BuildPilesMap[i].setTexture(m_buildPileTexture);
+        m_BuildPilesMap[i].setTextureRect(sf::IntRect(0, CARD_HEIGHT * i, CARD_WIDTH, CARD_HEIGHT));
+        m_transparancy = m_BuildPilesMap[i].getColor();
+        m_transparancy.a = 100; // transparancy between 0 - 255
+        m_BuildPilesMap[i].setColor(m_transparancy);
     }
+
     m_BuildPilesMap[0].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 0), BUILD_PILE_POS_Y); 
     m_BuildPilesMap[1].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 1), BUILD_PILE_POS_Y); 
     m_BuildPilesMap[2].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 2), BUILD_PILE_POS_Y); 
     m_BuildPilesMap[3].setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * 3), BUILD_PILE_POS_Y); 
+    
+    
 
     // Discard Draw Pile Sprite
     m_DiscardPileSprite.setPosition(DISCARD_POSITION_X, DISCARD_POSITION_Y);  
@@ -79,17 +99,21 @@ void Game::CardInit()
     int suit = 0;
 
     // Assigning each card to texture in ordered
-    for(int i = 0; i < 52; ++i){
+    for(int i = 0; i < 52; i++){
       
-        if(suit >= 4) suit = 0;
-        if(rank >= 14) rank = 1;
-     
+        //if(suit >= 4) suit = 0;
+    
+        if(rank > 13) rank = 1;
+        if(i == 13) suit = 1;
+        if(i == 26) suit = 2;
+        if(i == 39) suit = 3;
+
         tempDeck[i].setCardFrontSprite(sf::IntRect((i%13)*CARD_WIDTH, (i/13)*CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT));
         //myDeck[i].setCardFrontSprite(sf::IntRect((i%13)*CARD_WIDTH, (i/13)*CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT));
              
         tempDeck[i].setCardRank(rank);
         tempDeck[i].setCardSuit(suit);   
-      
+        
         //myDeck[i].setCardRank(rank);
         //myDeck[i].setCardSuit(suit);
 
@@ -108,9 +132,6 @@ void Game::CardInit()
             //myDeck[i].setCardColor(0);
 
         ++rank;
-        if(i == 13) ++suit;
-        if(i == 26) ++suit;
-        if(i == 39) ++suit;
       
         /*/ FOR TESTING
         tempDeck[i].setFaceUp();
@@ -179,6 +200,9 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
             myDeck[i].cardProcessInput(window,event); 
             // if the myDeck[i] is pick up, then break from the loop so it will not pick up all the cards at the same time
             if (myDeck[i].getIsPickUp()== true) {
+                std::cout<<"Card rank: " << myDeck[i].getCardRank() << std::endl;
+                std::cout<<"Card suit: " << myDeck[i].getCardSuit() << std::endl;
+                myDeck[i].setIsPickUp(true); // if the card is pick up, set the pick up card to true. 
                 break;
             }
         }
@@ -501,7 +525,9 @@ void Game::CheckDiscardPile()
         }
     }
 
-   // Checking Cards CANNOT Stuck Together, Card will show on the bottom if stuck with another card. 
+   /*/ Checking Cards CANNOT Stuck Together, Card will show on the bottom if stuck with another card. 
+   // we may not need this code any more becuse I set the card pickUP condition to true and the other card is not set true for pickUp.
+   // this issue of piking up two cards have been resolved.  
    for(int i = 0; i <= myDeck.size(); i++)
    {
         if(myDeck[i].getIsPickUp()){
@@ -509,21 +535,25 @@ void Game::CheckDiscardPile()
             for(int j = i + 1; j < myDeck.size(); j++){
                 // check if PickUp Card intersect with Cards on Table with the FaceUP (not Back of the Card)
                 if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[j].getCardSprite().getGlobalBounds())
-                    && myDeck[j].getIsFaceUp() && myDeck[j].getIsOnBuildPile() == false)
+                    && myDeck[j].getIsFaceUp() && myDeck[j].getIsOnBuildPile() == false
+                    && myDeck[j].getCardRank() < myDeck[i].getCardRank())
                     // if myDeck[j]. is not on the BuildPile then we can make sure the cards did not stuck together otherwise it will render 
                     // the card twice
                 {
                     //std::cout<<"checking card intersect CANNOT HAVE CARDS STUCK TOGETHER"<<std::endl; 
-                    myDeck[i].setCardPosition(myDeck[j].getCardPositionX(), myDeck[j].getCardPositionY() + TABLE_OFFSET_POS_Y);
+                    // myDeck[i].setCardPosition(myDeck[j].getCardPositionX(), myDeck[j].getCardPositionY() + TABLE_OFFSET_POS_Y);
+                    myDeck[j].setCardPosition(myDeck[i].getCardPositionX(), myDeck[i].getCardPositionY() + TABLE_OFFSET_POS_Y);
                     myDeck[i].setIsParent(true);
                     myDeck[j].setIsChild(true);
+
+                    myDeck[j].setIsPickUp(false);
                 }
 
             }
 
         } 
-        
-        /*if(myDeck[i].getIsPickUp()){ 
+        // do not delete this yet
+        if(myDeck[i].getIsPickUp()){ 
             // Checking PickUp card intersect with cards on table backward     
             for(int j = Card_On_Table; j > 0 ; j--){
                 // check if PickUp Card intersect with Cards on Table with the FaceUP (not Back of the Card)        
@@ -534,9 +564,9 @@ void Game::CheckDiscardPile()
                 }
             }
 
-        }*/      
+        }     
 
-   }   
+   }*/   
             
 }
 
@@ -713,8 +743,10 @@ void Game::CheckCardsOnTable()
     std::cout<<"Card rank: " << myDeck[27].getCardRank() << std::endl;
     std::cout<<"Card suit: " << strSuit << std::endl;
     std::cout<<"Card color: "<< strColor <<  std::endl;    
+*/
 
-    // Put card below the lower rank card
+    
+    /*/ Put card below the lower rank card
     if(myDeck[0].getCardSprite().getGlobalBounds().intersects(myDeck[2].getCardSprite().getGlobalBounds()))
     {
         std::cout <<"card 0 intersect with card 2"<<std::endl;
@@ -752,6 +784,7 @@ void Game::CheckCardsOnTable()
     }
 */
 
+    
     // check and update card base on its parent 
     /*   
     for (int j = 0; j < TABLE_NUM_COL; j++){
@@ -798,6 +831,7 @@ void Game::CheckCardsOnTable()
                     
 
    
+
 }
 
 void Game::CheckBuildPile()
@@ -818,7 +852,8 @@ void Game::CheckBuildPile()
                 switch(i)
                 {
                     case 0:
-                       if(myDeck[j].getCardRank() == BuildPile0_Index){ // check BuildPile in order 1(Ace) to 13(King)
+                       // CLUBS
+                       if(myDeck[j].getCardRank() == BuildPile0_Index && myDeck[j].getCardSuit() == CLUBS){ // check BuildPile in order 1(Ace) to 13(King)
                            BuildPile0[BuildPile0_Index] = myDeck[j];
                            myDeck[j].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
                            BuildPile0[BuildPile0_Index].getCardSprite().setPosition(myDeck[j].getCardSprite().getPosition());
@@ -826,9 +861,11 @@ void Game::CheckBuildPile()
                            myDeck[j].setFaceUp();
                            myDeck[j].setIsOnBuildPile(true);
                            ++BuildPile0_Index;
-                       } break;
+                       }break;
+
                     case 1:
-                       if(myDeck[j].getCardRank() == BuildPile1_Index){
+                       // DIAMONDS
+                       if(myDeck[j].getCardRank() == BuildPile1_Index && myDeck[j].getCardSuit() == DIAMONDS){
                            BuildPile1[BuildPile1_Index] = myDeck[j];
                            myDeck[j].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
                            BuildPile1[BuildPile1_Index].getCardSprite().setPosition(myDeck[j].getCardSprite().getPosition()); 
@@ -838,7 +875,8 @@ void Game::CheckBuildPile()
                            ++BuildPile1_Index;
                        }break;                      
                     case 2:
-                       if(myDeck[j].getCardRank() == BuildPile2_Index){
+                       // HEARTS
+                       if(myDeck[j].getCardRank() == BuildPile2_Index && myDeck[j].getCardSuit() == HEARTS){
                            BuildPile2[BuildPile2_Index] = myDeck[j];
                            myDeck[j].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
                            BuildPile2[BuildPile2_Index].getCardSprite().setPosition(myDeck[j].getCardSprite().getPosition()); 
@@ -848,7 +886,8 @@ void Game::CheckBuildPile()
                            ++BuildPile2_Index;
                        }break;                     
                     case 3:
-                       if(myDeck[j].getCardRank() == BuildPile3_Index){
+                       // SPADES
+                       if(myDeck[j].getCardRank() == BuildPile3_Index && myDeck[j].getCardSuit() == SPADES){
                            BuildPile3[BuildPile3_Index] = myDeck[j];
                            myDeck[j].getCardSprite().setPosition(BUILD_PILE_POS_X + (BUILD_PILE_OFFSET_X * i), BUILD_PILE_POS_Y);
                            BuildPile3[BuildPile3_Index].getCardSprite().setPosition(myDeck[j].getCardSprite().getPosition()); 
@@ -874,7 +913,8 @@ void Game::Update()
     CheckBuildPile();
     CheckCardsOnTable();
     CheckDiscardPile();
-
+    CheckWinCondition();
+    
     /*/for testing open all the cards
     for(int i = 0; i < myDeck.size(); i++){
         myDeck[i].setFaceUp();
@@ -981,6 +1021,20 @@ void Game::PutCardOnTable()
     }
 }
 
+void Game::CheckWinCondition()
+{
+    m_winText.setFont(m_font);
+    m_winText.setString("You Win!");
+    m_winText.setCharacterSize(24);
+    m_winText.setFillColor(sf::Color::Green);
+    m_winText.setPosition(500, 500);    
+    
+    if (BuildPile0_Index > 13 && BuildPile1_Index > 13 && BuildPile2_Index > 13 && BuildPile3_Index > 13) 
+    {
+        m_isPlayerWin = true;        
+    }
+}
+
 void Game::ResetButton()
 {
     BuildPile0.clear();
@@ -1010,18 +1064,21 @@ void Game::Render(sf::RenderWindow &window)
 
     // Draw Pile
     for(int i = 28; i < 52; i++){
-        window.draw(myDeck[i].getCardSprite());
+        if(myDeck[i].getIsOnBuildPile() == false)
+            window.draw(myDeck[i].getCardSprite());
     }
 
     // Draw Discard Pile
     for(int i = 51; i > 27; i--)
     {
-        window.draw(myDeck[i].getCardSprite()); 
+        if(myDeck[i].getIsOnBuildPile() == false) 
+            window.draw(myDeck[i].getCardSprite()); 
     }
 
     // Draw Card on Table
     for(int i = 0; i < 28; i++){
-        window.draw(myDeck[i].getCardSprite());
+        if(myDeck[i].getIsOnBuildPile() == false) 
+            window.draw(myDeck[i].getCardSprite());
     }
     
 
@@ -1055,6 +1112,19 @@ void Game::Render(sf::RenderWindow &window)
     }
 
     window.draw(m_resetButton);
+    
+    if (m_isPlayerWin){
+        window.draw(m_winText);
+    }
+
+
+    // when the card is being pick up, the card needs to be drawn last,
+    // so the card  will be shown on the top of all cards, not under the other cards
+    for(int i = 0; i < myDeck.size(); i++)
+    {
+        if(myDeck[i].getIsPickUp() == true)
+            window.draw(myDeck[i].getCardSprite());
+    }
 
     /*/Test for in ordered card
     for(int i = 0; i < 52; i++){

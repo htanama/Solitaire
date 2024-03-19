@@ -23,6 +23,7 @@ class Game
         void CheckBuildPile();
         void CheckCardsOnTable();
         void CheckDiscardPile();
+        void CheckWinCondition();
         void setIsDiscardPileEmpty(bool);
         bool getIsDiscardPileEmpty();
         
@@ -46,9 +47,10 @@ class Game
             51
         };
         
-        bool m_isDiscardPileEmpty;
-        int BuildPile0_Index, BuildPile1_Index, BuildPile2_Index, BuildPile3_Index;
+        bool m_isDiscardPileEmpty, m_isPlayerWin;
 
+        int BuildPile0_Index, BuildPile1_Index, BuildPile2_Index, BuildPile3_Index;
+        int BuildPile0_Suit, BuildPile1_Suit, BuildPile2_Suit, BuildPile3_Suit;        
         // Discard Pile Position
         const int DISCARD_POSITION_X = 150;
         const int DISCARD_POSITION_Y = 20;
@@ -70,7 +72,11 @@ class Game
         const int TABLE_NUM_COL = 7;
         const int TABLE_NUM_CARDS = 28; // there are 28 cards on table but index start with zero
         
-
+        sf::Font m_font;
+        sf::Text m_winText;
+        
+        sf::Color m_transparancy;        
+        sf::Texture m_buildPileTexture;
         sf::Texture m_pilesTexture;
         sf::Texture m_resetTexture;
         sf::Sprite m_DrawDeckSprite;
@@ -81,7 +87,7 @@ class Game
 
 
         std::unordered_map<int, sf::Sprite> m_BuildPilesMap;
-        
+         
         Card m_card;
         std::vector<Card> myDeck,tempDeck, BuildPile0, BuildPile1, BuildPile2, BuildPile3;
         std::vector<Card> DiscardCard, CardsOnTable;
