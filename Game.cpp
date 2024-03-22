@@ -40,7 +40,8 @@ void Game::CardInit()
     m_getOneCardOnly = false;
     m_isDiscardPileEmpty = true;
     m_isRenderingDrawDeck = false;
-    
+    m_indexOnTable = 0; 
+
     if(!m_buildPileTexture.loadFromFile("./assets/card-deck.png")){
         std::cerr<<"Error Loading FinalRectangle.png!\n";
         return;
@@ -200,8 +201,9 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
             myDeck[i].cardProcessInput(window,event); 
             // if the myDeck[i] is pick up, then break from the loop so it will not pick up all the cards at the same time
             if (myDeck[i].getIsPickUp()== true) {
-                std::cout<<"Card rank: " << myDeck[i].getCardRank() << std::endl;
-                std::cout<<"Card suit: " << myDeck[i].getCardSuit() << std::endl;
+                //std::cout<<"Card rank: " << myDeck[i].getCardRank() << std::endl;
+                //std::cout<<"Card suit: " << myDeck[i].getCardSuit() << std::endl;
+                //std::cout<<"Card color: " << myDeck[i].getCardColor()<< std::endl;  
                 myDeck[i].setIsPickUp(true); // if the card is pick up, set the pick up card to true. 
                 break;
             }
@@ -270,9 +272,12 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
                 {
                     for(int i = 28; i < 52; i++)
                     {
-                        myDeck[i].setFaceDown();
-                        myDeck[i].setIsCardOnDiscardPile(false); 
-                        myDeck[i].getCardSprite().setPosition(DRAW_PILE_POSX, DRAW_PILE_POSY); 
+                        if(!myDeck[i].getIsOnTable())
+                        {
+                            myDeck[i].setFaceDown();
+                            myDeck[i].setIsCardOnDiscardPile(false); 
+                            myDeck[i].getCardSprite().setPosition(DRAW_PILE_POSX, DRAW_PILE_POSY); 
+                        }
                     }
                     m_isDrawDeckEmpty = false;
                     m_isRenderingDrawDeck = false;
@@ -572,194 +577,75 @@ void Game::CheckDiscardPile()
 
 void Game::CheckCardsOnTable()
 {
-    /*/ Test: Check the correct rank and suit of a card
-    std::string strSuit, strColor;
+    // m_indexOnTable > 52 because the other cards from deck will be placed on the table
+    // so we need to check the cards indices on the table up to 51:  myDeck[51] 
+    if(m_indexOnTable > 52){
+        m_indexOnTable = 0;
+    }
     
-    if(myDeck[0].getCardColor() == 0)
-        strColor = "Black";
-    if(myDeck[0].getCardColor() == 1)
-        strColor = "Red";
+    // check if DrawDeck Card intersect with myDeck[m_indexOnTable] card on table.
+    for(int i = 51; i > 27; i--){
+        
+        if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[m_indexOnTable].getCardSprite().getGlobalBounds()) 
+            && myDeck[m_indexOnTable].getIsFaceUp() == true && myDeck[m_indexOnTable].getIsOnTable())
+        {
 
-    switch (myDeck[0].getCardSuit()){
-        case CLUBS:
-            strSuit = "Clubs";
-            break;
-        case DIAMONDS:
-            strSuit = "Diamond";
-            break;
-        case HEARTS:
-            strSuit = "Hearts";
-            break;
-        case SPADES:
-            strSuit = "Spades";
-            break;
+            m_acceptableChildValue = myDeck[m_indexOnTable].getCardRank() - 1; 
+            
+            if(myDeck[i].getCardRank() == m_acceptableChildValue && myDeck[i].getCardColor() != myDeck[m_indexOnTable].getCardColor())
+            {
+                float new_X, new_Y;
+                new_X = myDeck[m_indexOnTable].getCardSprite().getPosition().x;
+                new_Y = myDeck[m_indexOnTable].getCardSprite().getPosition().y;
+                myDeck[i].setCardPosition(new_X, new_Y + TABLE_OFFSET_POS_Y);
+                myDeck[i].setIsChild(true);
+                myDeck[i].setIsOnTable(true); 
+            }
+
+        }
+        
     }
-
-    std::cout<<"Card rank: " << myDeck[0].getCardRank() << std::endl;
-    std::cout<<"Card suit: " << strSuit << std::endl;
-    std::cout<<"Card color: "<< strColor <<  std::endl;    
-
-    if(myDeck[2].getCardColor() == 0)
-        strColor = "Black";
-    if(myDeck[2].getCardColor() == 1)
-        strColor = "Red";
-
-    switch (myDeck[2].getCardSuit()){
-        case CLUBS:
-            strSuit = "Clubs";
-            break;
-        case DIAMONDS:
-            strSuit = "Diamond";
-            break;
-        case HEARTS:
-            strSuit = "Hearts";
-            break;
-        case SPADES:
-            strSuit = "Spades";
-            break;
-    }
-
-    std::cout<<"Card rank: " << myDeck[2].getCardRank() << std::endl;
-    std::cout<<"Card suit: " << strSuit << std::endl;
-    std::cout<<"Card color: "<< strColor <<  std::endl;    
-
-
-    if(myDeck[5].getCardColor() == 0)
-        strColor = "Black";
-    if(myDeck[5].getCardColor() == 1)
-        strColor = "Red";
-
-    switch (myDeck[5].getCardSuit()){
-        case CLUBS:
-            strSuit = "Clubs";
-            break;
-        case DIAMONDS:
-            strSuit = "Diamond";
-            break;
-        case HEARTS:
-            strSuit = "Hearts";
-            break;
-        case SPADES:
-            strSuit = "Spades";
-            break;
-    }
-
-    std::cout<<"Card rank: " << myDeck[5].getCardRank() << std::endl;
-    std::cout<<"Card suit: " << strSuit << std::endl;
-    std::cout<<"Card color: "<< strColor <<  std::endl;    
-
-    if(myDeck[9].getCardColor() == 0)
-        strColor = "Black";
-    if(myDeck[9].getCardColor() == 1)
-        strColor = "Red";
-
-    switch (myDeck[9].getCardSuit()){
-        case CLUBS:
-            strSuit = "Clubs";
-            break;
-        case DIAMONDS:
-            strSuit = "Diamond";
-            break;
-        case HEARTS:
-            strSuit = "Hearts";
-            break;
-        case SPADES:
-            strSuit = "Spades";
-            break;
-    }
-
-    std::cout<<"Card rank: " << myDeck[9].getCardRank() << std::endl;
-    std::cout<<"Card suit: " << strSuit << std::endl;
-    std::cout<<"Card color: "<< strColor <<  std::endl;    
-
-    if(myDeck[14].getCardColor() == 0)
-        strColor = "Black";
-    if(myDeck[14].getCardColor() == 1)
-        strColor = "Red";
-
-    switch (myDeck[14].getCardSuit()){
-        case CLUBS:
-            strSuit = "Clubs";
-            break;
-        case DIAMONDS:
-            strSuit = "Diamond";
-            break;
-        case HEARTS:
-            strSuit = "Hearts";
-            break;
-        case SPADES:
-            strSuit = "Spades";
-            break;
-    }
-
-    std::cout<<"Card rank: " << myDeck[14].getCardRank() << std::endl;
-    std::cout<<"Card suit: " << strSuit << std::endl;
-    std::cout<<"Card color: "<< strColor <<  std::endl;    
-
-    if(myDeck[20].getCardColor() == 0)
-        strColor = "Black";
-    if(myDeck[20].getCardColor() == 1)
-        strColor = "Red";
-
-    switch (myDeck[20].getCardSuit()){
-        case CLUBS:
-            strSuit = "Clubs";
-            break;
-        case DIAMONDS:
-            strSuit = "Diamond";
-            break;
-        case HEARTS:
-            strSuit = "Hearts";
-            break;
-        case SPADES:
-            strSuit = "Spades";
-            break;
-    }
-
-    std::cout<<"Card rank: " << myDeck[20].getCardRank() << std::endl;
-    std::cout<<"Card suit: " << strSuit << std::endl;
-    std::cout<<"Card color: "<< strColor <<  std::endl;    
-
-    if(myDeck[27].getCardColor() == 0)
-        strColor = "Black";
-    if(myDeck[27].getCardColor() == 1)
-        strColor = "Red";
-
-    switch (myDeck[27].getCardSuit()){
-        case CLUBS:
-            strSuit = "Clubs";
-            break;
-        case DIAMONDS:
-            strSuit = "Diamond";
-            break;
-        case HEARTS:
-            strSuit = "Hearts";
-            break;
-        case SPADES:
-            strSuit = "Spades";
-            break;
-    }
-
-    std::cout<<"Card rank: " << myDeck[27].getCardRank() << std::endl;
-    std::cout<<"Card suit: " << strSuit << std::endl;
-    std::cout<<"Card color: "<< strColor <<  std::endl;    
-*/
-
     
-    /*/ Put card below the lower rank card
-    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(myDeck[2].getCardSprite().getGlobalBounds()))
+
+    //TODO I need to check the open cards on the table intersect with open cards on the table 
+    //Cards on the table index: 0 to 27. 
+    for (int i = 27; i >= 0; i--)
     {
-        std::cout <<"card 0 intersect with card 2"<<std::endl;
-        if(myDeck[0].getCardRank() < myDeck[2].getCardRank()){
+        if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[m_indexOnTable].getCardSprite().getGlobalBounds()) 
+            && myDeck[i].getIsFaceUp() == true && myDeck[m_indexOnTable].getIsFaceUp() == true && myDeck[m_indexOnTable].getIsOnTable())
+        {
+             m_acceptableChildValue = myDeck[m_indexOnTable].getCardRank() - 1; 
+
+             if(myDeck[i].getCardRank() == m_acceptableChildValue && myDeck[i].getCardColor() != myDeck[m_indexOnTable].getCardColor())
+             {
+                float new_X, new_Y;
+                new_X = myDeck[m_indexOnTable].getCardSprite().getPosition().x;
+                new_Y = myDeck[m_indexOnTable].getCardSprite().getPosition().y;
+                myDeck[i].setCardPosition(new_X, new_Y + TABLE_OFFSET_POS_Y);  
+                myDeck[i].setIsChild(true);
+                
+             }
+        }
+    }
+    ++m_indexOnTable;
+
+    /*/ Put card below the lower rank card
+    if(myDeck[0].getCardSprite().getGlobalBounds().intersects(myDeck[2].getCardSprite().getGlobalBounds())
+        && myDeck[2].getIsFaceUp() == true)
+    {
+        // std::cout <<"card 0 intersect with card 2"<<std::endl;
+        m_acceptableChildValue = myDeck[2].getCardRank() - 1; 
+        if(myDeck[0].getCardRank() == m_acceptableChildValue && myDeck[0].getCardColor() != myDeck[2].getCardColor()){
             float new_X, new_Y;
             new_X = myDeck[2].getCardSprite().getPosition().x;
             new_Y = myDeck[2].getCardSprite().getPosition().y;
             myDeck[0].setCardPosition(new_X, new_Y + TABLE_OFFSET_POS_Y); 
         }
 
-    }
+    }*/
+    
 
-    // Put card below the lower rank card
+    /*/ Put card below the lower rank card
     if(myDeck[0].getCardSprite().getGlobalBounds().intersects(myDeck[5].getCardSprite().getGlobalBounds()))
     {
         if(myDeck[0].getCardRank() < myDeck[5].getCardRank()){
@@ -781,16 +667,15 @@ void Game::CheckCardsOnTable()
             myDeck[0].getCardSprite().setPosition(new_X, new_Y + TABLE_OFFSET_POS_Y);
         }
 
-    }
-*/
+    }*/
+
 
     
-    // check and update card base on its parent 
-    /*   
+    /*/ check and update card base on its parent   
     for (int j = 0; j < TABLE_NUM_COL; j++){
         for(int i = 0; i < j + 1; i++){
-            
-            if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[i+1].getCardSprite().getGlobalBounds()) && myDeck[i].getIsFaceUp()){
+            if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[i+1].getCardSprite().getGlobalBounds()) 
+                    && myDeck[i].getIsFaceUp() && myDeck[i+1].getIsFaceUp()){
                 if(myDeck[i].getCardRank() < myDeck[i+1].getCardRank()){
                     std::cout<<"Check if myDeck["<< i <<"] < "<<"myDeck[" << i+1 <<"]"<<std::endl;                
                     //myDeck[i+1] is parent to myDeck[i]
@@ -800,11 +685,11 @@ void Game::CheckCardsOnTable()
                     xpos = myDeck[i+1].getCardSprite().getPosition().x;
                     ypos = myDeck[i+1].getCardSprite().getPosition().y; 
                     myDeck[i].getCardSprite().setPosition(xpos, ypos + TABLE_OFFSET_POS_Y);
-
                 }
             }
-         }
-    }*/ 
+         
+        }
+    }*/
 
     /*
     for(int i = 0; i < 52; i++){
@@ -1007,18 +892,12 @@ void Game::PutCardOnTable()
        for(int i = 0; i < j + 1 ; i++){
          myDeck[myDeck_index].setCardPosition(TABLE_COL_POS_X + (TABLE_OFFSET_POS_X * j), TABLE_COL_POS_Y + (TABLE_OFFSET_POS_Y * i)); 
          myDeck[myDeck_index].setFaceDown(); // original facedown 
+         myDeck[myDeck_index].setIsOnTable(true);
          ++myDeck_index;
        }
        myDeck[myDeck_index - 1].flipCard();      
     } 
      
-    CardsOnTable.resize(myDeck_index);
-
-    // assigning myDeck cards to CardsOnTables to track
-    for(int i = 0; i < myDeck_index; i++)
-    {
-    //    CardsOnTable[i] = myDeck[i];
-    }
 }
 
 void Game::CheckWinCondition()
@@ -1117,6 +996,13 @@ void Game::Render(sf::RenderWindow &window)
         window.draw(m_winText);
     }
 
+    //we need to draw the highest rank cards first and then lower rank cards after on the table when the cards are opens
+    for(int i = myDeck.size() - 1; i >= 0; i--)
+    {   
+        //if the card is a child and placed on table, render/draw last. 
+        if(myDeck[i].getIsChild() && myDeck[i].getIsOnTable()) 
+            window.draw(myDeck[i].getCardSprite());
+    }
 
     // when the card is being pick up, the card needs to be drawn last,
     // so the card  will be shown on the top of all cards, not under the other cards

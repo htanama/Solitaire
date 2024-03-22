@@ -20,6 +20,7 @@ class Card
         bool m_isChild;
         bool m_isOnBuildPile;
         bool m_isOnDiscardPile;
+        bool m_isOnTable;
 
         // const int CARD_WIDTH = 98;
         // const  int CARD_HEIGHT = 153;
@@ -62,6 +63,8 @@ class Card
         bool getIsChild();
         void setIsOnBuildPile(bool);
         bool getIsOnBuildPile();
+        void setIsOnTable(bool);
+        bool getIsOnTable();
         void setCardFrontSprite(sf::IntRect srcRect);
         float getCardPositionX() const;
         float getCardPositionY() const;

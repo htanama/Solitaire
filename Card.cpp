@@ -8,7 +8,8 @@
 #include <iostream>
 
 Card::Card()
-:m_isFaceUp(false),m_isParent(false), m_isPickUp(false), m_isChild(false), m_isOnBuildPile(false), m_isOnDiscardPile(false)
+:m_isFaceUp(false),m_isParent(false), m_isPickUp(false), m_isChild(false), m_isOnBuildPile(false), m_isOnDiscardPile(false),
+m_isOnTable(false)
 {   
     // Get the spritesheet from file  and put it on the sf::Texture m_spriteSheetTexture
     if(!m_spriteSheetTexture.loadFromFile("./assets/card-deck.png"))
@@ -125,6 +126,16 @@ void Card::setCardRank(int rank)
 int Card::getCardRank()
 {
     return m_rank;
+}
+
+void Card::setIsOnTable(bool isOnTable)
+{
+    m_isOnTable = isOnTable;
+}
+
+bool Card::getIsOnTable()
+{
+    return m_isOnTable;
 }
 
 void Card::setCardFrontSprite(sf::IntRect srcRect)

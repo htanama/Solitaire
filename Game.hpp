@@ -48,6 +48,8 @@ class Game
         };
         
         bool m_isDiscardPileEmpty, m_isPlayerWin;
+        int m_acceptableChildValue; 
+        int m_indexOnTable;
 
         int BuildPile0_Index, BuildPile1_Index, BuildPile2_Index, BuildPile3_Index;
         int BuildPile0_Suit, BuildPile1_Suit, BuildPile2_Suit, BuildPile3_Suit;        
