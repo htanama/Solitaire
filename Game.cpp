@@ -942,14 +942,14 @@ void Game::Render(sf::RenderWindow &window)
 
     // Draw Pile Cards 24
     for(int i = 28; i < 52; i++){
-        if(myDeck[i].getIsOnBuildPile() == false && !myDeck[i].getIsOnTable())
+        if(myDeck[i].getIsOnBuildPile() == false )
             window.draw(myDeck[i].getCardSprite());
     }
 
     // Draw Discard Pile
     for(int i = 51; i > 27; i--)
     {
-        if(myDeck[i].getIsOnBuildPile() == false && !myDeck[i].getIsOnTable()) 
+        if(myDeck[i].getIsOnBuildPile() == false ) 
             window.draw(myDeck[i].getCardSprite()); 
     }
 
