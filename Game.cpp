@@ -42,6 +42,7 @@ void Game::CardInit()
     m_isRenderingDrawDeck = false;
     m_indexOnTable = 0; 
 
+
     if(!m_buildPileTexture.loadFromFile("./assets/card-deck.png")){
         std::cerr<<"Error Loading FinalRectangle.png!\n";
         return;
@@ -201,7 +202,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
             myDeck[i].cardProcessInput(window,event); 
             // if the myDeck[i] is pick up, then break from the loop so it will not pick up all the cards at the same time
             if (myDeck[i].getIsPickUp()== true) {
-                //std::cout<<"Card rank: " << myDeck[i].getCardRank() << std::endl;
+                std::cout<<"Card rank: " << myDeck[i].getCardRank() <<" Index: "<< i << std::endl;
                 //std::cout<<"Card suit: " << myDeck[i].getCardSuit() << std::endl;
                 //std::cout<<"Card color: " << myDeck[i].getCardColor()<< std::endl;  
                 myDeck[i].setIsPickUp(true); // if the card is pick up, set the pick up card to true. 
@@ -584,12 +585,11 @@ void Game::CheckCardsOnTable()
     }
     
     // check if DrawDeck Card intersect with myDeck[m_indexOnTable] card on table.
-    for(int i = 51; i > 27; i--){
+    for(int i = 51; i >= TABLE_NUM_CARDS; i--){
         
         if(myDeck[i].getCardSprite().getGlobalBounds().intersects(myDeck[m_indexOnTable].getCardSprite().getGlobalBounds()) 
-            && myDeck[m_indexOnTable].getIsFaceUp() == true && myDeck[m_indexOnTable].getIsOnTable())
+            && myDeck[i].getIsFaceUp() == true && myDeck[m_indexOnTable].getIsFaceUp() == true && myDeck[m_indexOnTable].getIsOnTable())
         {
-
             m_acceptableChildValue = myDeck[m_indexOnTable].getCardRank() - 1; 
             
             if(myDeck[i].getCardRank() == m_acceptableChildValue && myDeck[i].getCardColor() != myDeck[m_indexOnTable].getCardColor())
@@ -603,10 +603,9 @@ void Game::CheckCardsOnTable()
             }
 
         }
-        
+                
     }
     
-
     //TODO I need to check the open cards on the table intersect with open cards on the table 
     //Cards on the table index: 0 to 27. 
     for (int i = 27; i >= 0; i--)
@@ -623,7 +622,6 @@ void Game::CheckCardsOnTable()
                 new_Y = myDeck[m_indexOnTable].getCardSprite().getPosition().y;
                 myDeck[i].setCardPosition(new_X, new_Y + TABLE_OFFSET_POS_Y);  
                 myDeck[i].setIsChild(true);
-                
              }
         }
     }
@@ -926,6 +924,7 @@ void Game::ResetButton()
 
 void Game::Render(sf::RenderWindow &window)
 {
+    std::map <int, sf::Sprite> displayCardsInOrder;
 
     // Render Draw Card Pile Rectangle 
     if(m_isDrawDeckEmpty == true){
@@ -941,22 +940,22 @@ void Game::Render(sf::RenderWindow &window)
     if(m_isDiscardPileEmpty == true)
         window.draw(m_DiscardPileSprite); 
 
-    // Draw Pile
+    // Draw Pile Cards 24
     for(int i = 28; i < 52; i++){
-        if(myDeck[i].getIsOnBuildPile() == false)
+        if(myDeck[i].getIsOnBuildPile() == false && !myDeck[i].getIsOnTable())
             window.draw(myDeck[i].getCardSprite());
     }
 
     // Draw Discard Pile
     for(int i = 51; i > 27; i--)
     {
-        if(myDeck[i].getIsOnBuildPile() == false) 
+        if(myDeck[i].getIsOnBuildPile() == false && !myDeck[i].getIsOnTable()) 
             window.draw(myDeck[i].getCardSprite()); 
     }
 
-    // Draw Card on Table
-    for(int i = 0; i < 28; i++){
-        if(myDeck[i].getIsOnBuildPile() == false) 
+    // Drawing the starting cards on Table front and back. 
+    for(int i = 0; i < TABLE_NUM_CARDS; i++){
+        if(myDeck[i].getIsOnBuildPile() == false && !myDeck[i].getIsFaceUp()) 
             window.draw(myDeck[i].getCardSprite());
     }
     
@@ -996,13 +995,44 @@ void Game::Render(sf::RenderWindow &window)
         window.draw(m_winText);
     }
 
+    
     //we need to draw the highest rank cards first and then lower rank cards after on the table when the cards are opens
-    for(int i = myDeck.size() - 1; i >= 0; i--)
-    {   
-        //if the card is a child and placed on table, render/draw last. 
-        if(myDeck[i].getIsChild() && myDeck[i].getIsOnTable()) 
-            window.draw(myDeck[i].getCardSprite());
+    for(int i = 0; i < myDeck.size(); i++)
+    {
+        if(!myDeck[i].getIsOnBuildPile() && myDeck[i].getIsOnTable() && myDeck[i].getIsFaceUp())
+        {   
+                
+                if(myDeck[i].getCardRank() == KING) displayCardsInOrder[KING] = myDeck[i].getCardSprite();
+                if(myDeck[i].getCardRank() == QUEEN) displayCardsInOrder[QUEEN] = myDeck[i].getCardSprite(); 
+                if(myDeck[i].getCardRank() == JACK) displayCardsInOrder[JACK] = myDeck[i].getCardSprite(); 
+                if(myDeck[i].getCardRank() == TEN) displayCardsInOrder[TEN] = myDeck[i].getCardSprite(); 
+                if(myDeck[i].getCardRank() == NINE) displayCardsInOrder[NINE] = myDeck[i].getCardSprite(); 
+                if(myDeck[i].getCardRank() == EIGHT) displayCardsInOrder[EIGHT] = myDeck[i].getCardSprite(); 
+                if(myDeck[i].getCardRank() == SEVEN) displayCardsInOrder[SEVEN] = myDeck[i].getCardSprite();
+                if(myDeck[i].getCardRank() == SIX) displayCardsInOrder[SIX] = myDeck[i].getCardSprite();
+                if(myDeck[i].getCardRank() == FIVE) displayCardsInOrder[FIVE] = myDeck[i].getCardSprite();
+                if(myDeck[i].getCardRank() == FOUR) displayCardsInOrder[FOUR] = myDeck[i].getCardSprite();
+                if(myDeck[i].getCardRank() == THREE) displayCardsInOrder[THREE] = myDeck[i].getCardSprite();
+                if(myDeck[i].getCardRank() == TWO) displayCardsInOrder[TWO] = myDeck[i].getCardSprite();
+                if(myDeck[i].getCardRank() == ACE) displayCardsInOrder[ACE] = myDeck[i].getCardSprite();     
+
+                window.draw(displayCardsInOrder[KING]);
+                window.draw(displayCardsInOrder[QUEEN]);
+                window.draw(displayCardsInOrder[JACK]);
+                window.draw(displayCardsInOrder[TEN]);
+                window.draw(displayCardsInOrder[NINE]);
+                window.draw(displayCardsInOrder[EIGHT]);
+                window.draw(displayCardsInOrder[SEVEN]);
+                window.draw(displayCardsInOrder[SIX]);
+                window.draw(displayCardsInOrder[FIVE]);
+                window.draw(displayCardsInOrder[FOUR]);
+                window.draw(displayCardsInOrder[THREE]);
+                window.draw(displayCardsInOrder[TWO]);
+                window.draw(displayCardsInOrder[ACE]);
+        }  
+        
     }
+
 
     // when the card is being pick up, the card needs to be drawn last,
     // so the card  will be shown on the top of all cards, not under the other cards
@@ -1011,15 +1041,7 @@ void Game::Render(sf::RenderWindow &window)
         if(myDeck[i].getIsPickUp() == true)
             window.draw(myDeck[i].getCardSprite());
     }
-
-    /*/Test for in ordered card
-    for(int i = 0; i < 52; i++){
-        window.draw(tempDeck[i].getCardSprite());
-        window.draw(myDeck[i].getCardSprite());
-    }*/
-    
    
-
 }
 
 void Game::setIsDiscardPileEmpty(bool isDiscardPileEmpty)

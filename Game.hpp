@@ -92,8 +92,7 @@ class Game
          
         Card m_card;
         std::vector<Card> myDeck,tempDeck, BuildPile0, BuildPile1, BuildPile2, BuildPile3;
-        std::vector<Card> DiscardCard, CardsOnTable;
-        
+        std::vector<Card> DiscardCard;
         
         
 };
