@@ -26,7 +26,6 @@ class Game
         void CheckWinCondition();
         void setIsDiscardPileEmpty(bool);
         bool getIsDiscardPileEmpty();
-        
 
     private:
         bool m_isDragCard1, m_getOneCardOnly, m_isDrawDeckEmpty, m_isRenderingDrawDeck;

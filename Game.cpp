@@ -995,44 +995,19 @@ void Game::Render(sf::RenderWindow &window)
         window.draw(m_winText);
     }
 
-    
+
     //we need to draw the highest rank cards first and then lower rank cards after on the table when the cards are opens
-    for(int i = 0; i < myDeck.size(); i++)
+
+    for(int rank = KING; rank >= ACE; --rank)
     {
-        if(!myDeck[i].getIsOnBuildPile() && myDeck[i].getIsOnTable() && myDeck[i].getIsFaceUp())
-        {   
-                
-                if(myDeck[i].getCardRank() == KING) displayCardsInOrder[KING] = myDeck[i].getCardSprite();
-                if(myDeck[i].getCardRank() == QUEEN) displayCardsInOrder[QUEEN] = myDeck[i].getCardSprite(); 
-                if(myDeck[i].getCardRank() == JACK) displayCardsInOrder[JACK] = myDeck[i].getCardSprite(); 
-                if(myDeck[i].getCardRank() == TEN) displayCardsInOrder[TEN] = myDeck[i].getCardSprite(); 
-                if(myDeck[i].getCardRank() == NINE) displayCardsInOrder[NINE] = myDeck[i].getCardSprite(); 
-                if(myDeck[i].getCardRank() == EIGHT) displayCardsInOrder[EIGHT] = myDeck[i].getCardSprite(); 
-                if(myDeck[i].getCardRank() == SEVEN) displayCardsInOrder[SEVEN] = myDeck[i].getCardSprite();
-                if(myDeck[i].getCardRank() == SIX) displayCardsInOrder[SIX] = myDeck[i].getCardSprite();
-                if(myDeck[i].getCardRank() == FIVE) displayCardsInOrder[FIVE] = myDeck[i].getCardSprite();
-                if(myDeck[i].getCardRank() == FOUR) displayCardsInOrder[FOUR] = myDeck[i].getCardSprite();
-                if(myDeck[i].getCardRank() == THREE) displayCardsInOrder[THREE] = myDeck[i].getCardSprite();
-                if(myDeck[i].getCardRank() == TWO) displayCardsInOrder[TWO] = myDeck[i].getCardSprite();
-                if(myDeck[i].getCardRank() == ACE) displayCardsInOrder[ACE] = myDeck[i].getCardSprite();     
-
-                window.draw(displayCardsInOrder[KING]);
-                window.draw(displayCardsInOrder[QUEEN]);
-                window.draw(displayCardsInOrder[JACK]);
-                window.draw(displayCardsInOrder[TEN]);
-                window.draw(displayCardsInOrder[NINE]);
-                window.draw(displayCardsInOrder[EIGHT]);
-                window.draw(displayCardsInOrder[SEVEN]);
-                window.draw(displayCardsInOrder[SIX]);
-                window.draw(displayCardsInOrder[FIVE]);
-                window.draw(displayCardsInOrder[FOUR]);
-                window.draw(displayCardsInOrder[THREE]);
-                window.draw(displayCardsInOrder[TWO]);
-                window.draw(displayCardsInOrder[ACE]);
-        }  
-        
+        for(int i = 0; i < myDeck.size(); i++)
+        {
+            if(!myDeck[i].getIsOnBuildPile() && myDeck[i].getIsOnTable() && myDeck[i].getIsFaceUp() && myDeck[i].getCardRank() == rank)
+            {
+                window.draw(myDeck[i].getCardSprite());
+            }
+        }
     }
-
 
     // when the card is being pick up, the card needs to be drawn last,
     // so the card  will be shown on the top of all cards, not under the other cards
@@ -1043,6 +1018,7 @@ void Game::Render(sf::RenderWindow &window)
     }
    
 }
+
 
 void Game::setIsDiscardPileEmpty(bool isDiscardPileEmpty)
 {
