@@ -8,6 +8,7 @@ sudo apt-get install libsfml-dev
 ```
 or got to SFML website https://www.sfml-dev.org/tutorials/3.0/getting-started/linux/
 
+2. run the binary file ./Solitaire_test 
 
 This Solitaire is still in development will be completed on March 20, 2024.
 
