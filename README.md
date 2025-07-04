@@ -1,5 +1,14 @@
 ![My Image](https://github.com/htanama/Solitaire/blob/main/HarrySolitaire.png)
 
+How to run this game?
+1. Install the SFML package in your Linux distribution. 
+
+```
+sudo apt-get install libsfml-dev
+```
+or got to SFML website https://www.sfml-dev.org/tutorials/3.0/getting-started/linux/
+
+
 This Solitaire is still in development will be completed on March 20, 2024.
 
 SOLITAIRE GAME RULES

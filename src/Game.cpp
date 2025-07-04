@@ -260,7 +260,7 @@ void Game::ProcessInput(sf::RenderWindow &window, sf::Event event)
         // This will be a bug when myDeck[28] is move to Build Pile the DrawDeck will assume it is empty but it is not. 
         if(myDeck[28].getIsFaceUp())
             m_isDrawDeckEmpty = true;
-
+       
 
         if(m_isRenderingDrawDeck)
         {
